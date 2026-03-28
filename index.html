@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Цифровой сад состояний</title>
+  <style>
+    :root {
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+      --bg-1: #f4efe7;
+      --bg-2: #e9e0d3;
+      --bg-3: #ddd1bf;
+
+      --text-main: #241d18;
+      --text-soft: rgba(36, 29, 24, 0.66);
+      --text-faint: rgba(36, 29, 24, 0.42);
+
+      --card: rgba(255,255,255,0.40);
+      --card-line: rgba(255,255,255,0.54);
+      --accent: #9c7746;
+
+      --radius-frame: 34px;
+      --radius-panel: 24px;
+      --radius-btn: 18px;
+
+      --shadow:
+        0 24px 64px rgba(70, 54, 34, 0.08),
+        inset 0 1px 0 rgba(255,255,255,0.82),
+        inset 0 -1px 0 rgba(255,255,255,0.14);
+
+      --night-text: #ebf1ec;
+      --night-soft: rgba(235,241,236,0.64);
+      --night-faint: rgba(235,241,236,0.30);
+      --night-line: rgba(230,238,232,0.10);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif;
+      min-height: 100vh;
+      min-height: 100dvh;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(255,255,255,0.84), transparent 34%),
+        linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 48%, var(--bg-3) 100%);
+      color: var(--text-main);
+      transition: background 0.5s var(--ease), color 0.3s var(--ease);
+    }
+
+    .фон-свет {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 24% 14%, rgba(255,255,255,0.42), transparent 20%),
+        radial-gradient(circle at 82% 14%, rgba(221, 200, 168, 0.18), transparent 18%);
+    }
+
+    .фракталы {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0.72;
+    }
+
+    .оболочка {
+      position: relative;
+      z-index: 2;
+      min-height: 100dvh;
+      display: flex;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .рама {
+      width: 100%;
+      max-width: 510px;
+      min-height: calc(100dvh - 32px);
+      display: flex;
+      flex-direction: column;
+      border-radius: var(--radius-frame);
+      background: linear-gradient(180deg, var(--card), rgba(255,255,255,0.24));
+      border: 1px solid var(--card-line);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(22px) saturate(1.08);
+      -webkit-backdrop-filter: blur(22px) saturate(1.08);
+      overflow: hidden;
+      position: relative;
+    }
+
+    header {
+      padding: 22px 20px 10px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 21px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--text-main);
+    }
+
+    .подзаголовок {
+      margin-top: 6px;
+      font-size: 13px;
+      line-height: 1.4;
+      color: var(--text-soft);
+    }
+
+    .контент {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .вкладка {
+      position: absolute;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+      padding: 18px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      animation: fadeIn 0.3s var(--ease);
+    }
+
+    .вкладка.активна {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .карточка,
+    .сад-контейнер,
+    .панель-действий,
+    .помощь-визуал,
+    textarea {
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.44), rgba(255,255,255,0.26));
+      border: 1px solid rgba(255,255,255,0.50);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.72),
+        0 10px 24px rgba(0,0,0,0.04);
+    }
+
+    .карточка {
+      border-radius: var(--radius-panel);
+      padding: 18px;
+    }
+
+    .панель-верх {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .лейбл {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--text-soft);
+    }
+
+    .состояние {
+      font-size: 28px;
+      line-height: 1.05;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      color: var(--text-main);
+      text-align: right;
+    }
+
+    .описание {
+      font-size: 13px;
+      line-height: 1.45;
+      color: rgba(43, 36, 30, 0.76);
+    }
+
+    .шкала-обёртка {
+      position: relative;
+      margin: 16px 0 12px;
+    }
+
+    .шкала-фон {
+      position: absolute;
+      inset: 50% 0 auto 0;
+      transform: translateY(-50%);
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.05);
+      overflow: hidden;
+    }
+
+    .шкала-заполнение {
+      height: 100%;
+      width: 50%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #d1b895 0%, #b2a680 45%, #8a9a72 100%);
+      transition: width 0.25s var(--ease);
+    }
+
+    input[type="range"] {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      height: 34px;
+      background: transparent;
+      appearance: none;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: 30px;
+      height: 30px;
+      background: linear-gradient(180deg, #ffffff, #f2ebe2);
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+      box-shadow:
+        0 6px 14px rgba(0,0,0,0.10),
+        inset 0 1px 0 rgba(255,255,255,0.95);
+      cursor: pointer;
+    }
+
+    .подписи-шкалы {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      margin-top: 8px;
+      font-size: 10px;
+      color: var(--text-faint);
+      line-height: 1.2;
+    }
+
+    .подписи-шкалы span {
+      flex: 1;
+      text-align: center;
+    }
+
+    textarea {
+      width: 100%;
+      height: 120px;
+      border-radius: var(--radius-panel);
+      padding: 16px;
+      resize: none;
+      font: inherit;
+      font-size: 15px;
+      line-height: 1.45;
+      color: var(--text-main);
+      outline: none;
+    }
+
+    textarea::placeholder {
+      color: rgba(58,44,31,0.42);
+    }
+
+    .ряд-кнопок {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .кнопка {
+      appearance: none;
+      width: 100%;
+      min-height: 52px;
+      border-radius: var(--radius-btn);
+      border: 1px solid rgba(255,255,255,0.66);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.96), rgba(245,239,231,0.92));
+      color: var(--text-main);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow:
+        0 8px 20px rgba(0,0,0,0.05),
+        inset 0 1px 0 rgba(255,255,255,0.95);
+      transition: transform 0.16s var(--ease), box-shadow 0.16s var(--ease), opacity 0.2s var(--ease);
+    }
+
+    .кнопка:active {
+      transform: scale(0.98);
+      box-shadow:
+        inset 0 2px 7px rgba(0,0,0,0.10),
+        inset 0 -1px 2px rgba(255,255,255,0.22);
+    }
+
+    .сад-контейнер {
+      flex: 1;
+      min-height: 320px;
+      border-radius: var(--radius-panel);
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 18%, rgba(255,255,255,0.20), transparent 28%),
+        linear-gradient(180deg, rgba(255,255,255,0.30), rgba(255,255,255,0.18));
+    }
+
+    .пустой-сад {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      color: rgba(43,36,30,0.30);
+      padding: 28px;
+      line-height: 1.45;
+      font-size: 16px;
+      z-index: 1;
+    }
+
+    .существо {
+      position: absolute;
+      width: 84px;
+      min-height: 84px;
+      padding: 8px;
+      border-radius: 28px;
+      border: 1px solid rgba(255,255,255,0.78);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-size: 11px;
+      line-height: 1.15;
+      font-weight: 600;
+      color: rgba(34, 28, 22, 0.92);
+      box-shadow:
+        0 18px 34px rgba(0,0,0,0.10),
+        0 0 0 1px rgba(255,255,255,0.16),
+        inset 0 1px 0 rgba(255,255,255,0.62);
+      transition:
+        left 1.2s cubic-bezier(0.22, 1, 0.36, 1),
+        top 1.2s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 1.6s cubic-bezier(0.22, 1, 0.36, 1),
+        filter 1.6s cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+      overflow: hidden;
+      backdrop-filter: blur(14px) saturate(1.08);
+      -webkit-backdrop-filter: blur(14px) saturate(1.08);
+      animation: дыхание 6.5s ease-in-out infinite;
+      z-index: 2;
+      will-change: transform, opacity, filter;
+    }
+
+    .существо::before {
+      content: "";
+      position: absolute;
+      inset: 1px;
+      border-radius: inherit;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 30% 25%, rgba(255,255,255,0.58), transparent 34%),
+        linear-gradient(180deg, rgba(255,255,255,0.18), transparent 65%);
+      opacity: 0.85;
+    }
+
+    .существо::after {
+      content: "";
+      position: absolute;
+      inset: -8px;
+      border-radius: 50%;
+      opacity: 0;
+      pointer-events: none;
+      background: radial-gradient(circle, rgba(255,255,255,0.34), rgba(255,255,255,0) 70%);
+      transform: scale(0.8);
+    }
+
+    .существо span {
+      position: relative;
+      z-index: 1;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      padding: 0 2px;
+      max-width: 100%;
+      text-shadow: 0 1px 0 rgba(255,255,255,0.28);
+    }
+
+    .существо.выбран {
+      box-shadow:
+        0 0 0 2px rgba(167,132,83,0.42),
+        0 22px 42px rgba(0,0,0,0.16),
+        inset 0 1px 0 rgba(255,255,255,0.62);
+      transform: scale(1.08);
+    }
+
+    .существо.сжатие {
+      animation: сжатиеВТочку 1.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    .существо.сжатие::after {
+      animation: кольцоСжатия 1.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    @keyframes сжатиеВТочку {
+      0% {
+        transform: scale(1);
+        opacity: 1;
+        filter: blur(0px);
+        border-radius: 28px;
+      }
+      28% {
+        transform: scale(1.14);
+        opacity: 1;
+        filter: blur(0px);
+        border-radius: 30px;
+      }
+      68% {
+        transform: scale(0.22);
+        opacity: 0.9;
+        filter: blur(4px);
+        border-radius: 50%;
+      }
+      100% {
+        transform: scale(0.01);
+        opacity: 0;
+        filter: blur(18px);
+        border-radius: 50%;
+      }
+    }
+
+    @keyframes кольцоСжатия {
+      0% {
+        opacity: 0;
+        transform: scale(0.6);
+      }
+      24% {
+        opacity: 0.38;
+        transform: scale(1.18);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(1.8);
+      }
+    }
+
+    @keyframes дыхание {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.04); }
+    }
+
+    .магия-пыль {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 6;
+      will-change: transform, opacity, filter;
+      animation: магияПыль 1.25s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    @keyframes магияПыль {
+      0% {
+        opacity: 0;
+        transform: translate3d(0, 0, 0) scale(0.4);
+        filter: blur(0px);
+      }
+      12% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+        transform: translate3d(var(--dx), var(--dy), 0) scale(1.9);
+        filter: blur(6px);
+      }
+    }
+
+    .панель-действий {
+      border-radius: 20px;
+      padding: 10px;
+      display: none;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .панель-действий.показать {
+      display: grid;
+    }
+
+    .панель-действий .кнопка {
+      min-height: 46px;
+      font-size: 12px;
+      padding: 10px;
+    }
+
+    .помощь-визуал {
+      flex: 1;
+      min-height: 320px;
+      border-radius: var(--radius-panel);
+      overflow: hidden;
+      position: relative;
+      background:
+        radial-gradient(circle at 50% 18%, rgba(255,255,255,0.22), transparent 28%),
+        linear-gradient(180deg, rgba(255,255,255,0.30), rgba(255,255,255,0.18));
+    }
+
+    #calmCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .навигация {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      padding: 12px;
+      background: rgba(255,255,255,0.38);
+      border-top: 1px solid rgba(255,255,255,0.32);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .таб-кнопка {
+      border: none;
+      background: none;
+      padding: 11px 10px;
+      border-radius: 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(38,35,31,0.48);
+      cursor: pointer;
+      transition: all 0.2s var(--ease);
+    }
+
+    .таб-кнопка.активен {
+      background: rgba(255,255,255,0.72);
+      color: #9a7746;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.8),
+        0 4px 12px rgba(0,0,0,0.04);
+    }
+
+    .оверлей {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(10, 12, 11, 0.66);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    .модалка {
+      width: 100%;
+      max-width: 420px;
+      border-radius: 30px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.94), rgba(247,241,233,0.90));
+      border: 1px solid rgba(255,255,255,0.65);
+      box-shadow:
+        0 24px 70px rgba(0,0,0,0.18),
+        inset 0 1px 0 rgba(255,255,255,0.95);
+      padding: 20px;
+      color: var(--text-main);
+    }
+
+    .модалка h2 {
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .модалка p {
+      font-size: 15px;
+      line-height: 1.55;
+      color: rgba(43, 36, 30, 0.84);
+      text-align: center;
+    }
+
+    .ряд-модалки {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .подпись-автора {
+      padding: 8px 18px 14px;
+      text-align: center;
+      font-size: 12px;
+      letter-spacing: 0.03em;
+      color: rgba(36, 29, 24, 0.26);
+      position: relative;
+      z-index: 3;
+    }
+
+    body.ночь {
+      background:
+        radial-gradient(circle at top, rgba(130, 151, 139, 0.10), transparent 28%),
+        linear-gradient(180deg, #08100d 0%, #0c1512 42%, #121b17 100%);
+      color: var(--night-text);
+    }
+
+    body.ночь .рама {
+      background:
+        linear-gradient(180deg, rgba(21,31,26,0.72), rgba(14,21,18,0.48));
+      border: 1px solid var(--night-line);
+      box-shadow:
+        0 26px 82px rgba(0,0,0,0.38),
+        inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+
+    body.ночь h1,
+    body.ночь .состояние {
+      color: #f1f7f3;
+    }
+
+    body.ночь .подзаголовок,
+    body.ночь .лейбл,
+    body.ночь .описание,
+    body.ночь .подписи-шкалы {
+      color: var(--night-soft);
+    }
+
+    body.ночь .карточка,
+    body.ночь .сад-контейнер,
+    body.ночь .панель-действий,
+    body.ночь .помощь-визуал,
+    body.ночь textarea,
+    body.ночь .навигация {
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.03));
+      border-color: rgba(255,255,255,0.08);
+      color: var(--night-text);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.05),
+        0 12px 30px rgba(0,0,0,0.16);
+    }
+
+    body.ночь .шкала-фон {
+      background: rgba(255,255,255,0.08);
+    }
+
+    body.ночь .шкала-заполнение {
+      background: linear-gradient(90deg, rgba(214,191,147,0.72) 0%, rgba(151,170,139,0.68) 100%);
+    }
+
+    body.ночь input[type="range"]::-webkit-slider-thumb {
+      background: linear-gradient(180deg, #f5fbf7, #dde7df);
+      border-color: #d6bf93;
+    }
+
+    body.ночь textarea {
+      color: var(--night-text);
+    }
+
+    body.ночь textarea::placeholder {
+      color: rgba(229,238,232,0.34);
+    }
+
+    body.ночь .таб-кнопка {
+      color: rgba(220,231,223,0.46);
+    }
+
+    body.ночь .таб-кнопка.активен {
+      background: rgba(255,255,255,0.08);
+      color: #d6bf93;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+
+    body.ночь .кнопка {
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.09), rgba(255,255,255,0.04));
+      color: var(--night-text);
+      border-color: rgba(255,255,255,0.09);
+      box-shadow:
+        0 8px 20px rgba(0,0,0,0.12),
+        inset 0 1px 0 rgba(255,255,255,0.07);
+    }
+
+    body.ночь .существо {
+      color: rgba(244,249,246,0.92);
+      border-color: rgba(255,255,255,0.16);
+      box-shadow:
+        0 18px 36px rgba(0,0,0,0.26),
+        inset 0 1px 0 rgba(255,255,255,0.08);
+    }
+
+    body.ночь .существо span {
+      text-shadow: 0 1px 0 rgba(0,0,0,0.22);
+    }
+
+    body.ночь .существо.выбран {
+      box-shadow:
+        0 0 0 2px rgba(214,191,147,0.38),
+        0 18px 36px rgba(0,0,0,0.30),
+        inset 0 1px 0 rgba(255,255,255,0.08);
+    }
+
+    body.ночь .пустой-сад {
+      color: rgba(229,238,232,0.30);
+    }
+
+    body.ночь .модалка {
+      background:
+        linear-gradient(180deg, rgba(20,30,24,0.96), rgba(16,24,20,0.92));
+      border: 1px solid rgba(255,255,255,0.08);
+      color: var(--night-text);
+      box-shadow:
+        0 24px 70px rgba(0,0,0,0.35),
+        inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+
+    body.ночь .модалка p,
+    body.ночь .подпись-автора {
+      color: rgba(229,238,232,0.28);
+    }
+
+    @media (max-width: 390px) {
+      .оболочка {
+        padding: 12px;
+      }
+
+      .рама {
+        min-height: calc(100dvh - 24px);
+      }
+
+      .вкладка {
+        padding: 16px;
+      }
+
+      .ряд-кнопок,
+      .панель-действий {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body class="свет">
+  <div class="фон-свет"></div>
+  <canvas class="фракталы" id="bgCanvas"></canvas>
+
+  <main class="оболочка">
+    <section class="рама">
+      <header>
+        <h1 id="режимЗаголовок">Дневной свет</h1>
+        <div class="подзаголовок">Отметьте состояние и уберите лишнее из фокуса.</div>
+      </header>
+
+      <div class="контент">
+        <div class="вкладка активна" id="tab-today">
+          <div class="карточка">
+            <div class="панель-верх">
+              <span class="лейбл">Состояние</span>
+              <span id="состояниеТекст" class="состояние">Спокойно</span>
+            </div>
+
+            <div class="шкала-обёртка">
+              <div class="шкала-фон">
+                <div class="шкала-заполнение" id="шкалаЗаполнение"></div>
+              </div>
+              <input type="range" id="шкалаРесурса" min="0" max="4" step="1" value="2" />
+            </div>
+
+            <div class="подписи-шкалы">
+              <span>Тяжело</span>
+              <span>Ниже обычного</span>
+              <span>Спокойно</span>
+              <span>Собранно</span>
+              <span>Сильно</span>
+            </div>
+
+            <p id="подписьРесурса" class="описание"></p>
+          </div>
+
+          <textarea id="полеМысли" placeholder="Что сейчас мешает?"></textarea>
+
+          <div class="ряд-кнопок">
+            <button class="кнопка" id="кнопкаВынести" type="button">Выгрузить из головы</button>
+            <button class="кнопка" id="кнопкаРежима" type="button">Тема: авто</button>
+          </div>
+        </div>
+
+        <div class="вкладка" id="tab-garden">
+          <div class="сад-контейнер" id="сад">
+            <div class="пустой-сад" id="пустойСад">
+              Сад пуст.<br />
+              Добавьте первую мысль.
+            </div>
+          </div>
+
+          <div class="панель-действий" id="панельДействий">
+            <button class="кнопка" id="действиеСжать" type="button">Сжать</button>
+            <button class="кнопка" id="действиеВдаль" type="button">Вдаль</button>
+            <button class="кнопка" id="действиеРастворить" type="button">Растворить</button>
+          </div>
+        </div>
+
+        <div class="вкладка" id="tab-help">
+          <button class="кнопка" id="кнопкаВолна" type="button">Сбросить волну</button>
+
+          <div class="помощь-визуал">
+            <canvas id="calmCanvas"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <nav class="навигация">
+        <button class="таб-кнопка активен" data-tab="today" type="button">Сегодня</button>
+        <button class="таб-кнопка" data-tab="garden" type="button">Сад</button>
+        <button class="таб-кнопка" data-tab="help" type="button">Помощь</button>
+      </nav>
+
+      <div class="подпись-автора">@parchaipodusham</div>
+    </section>
+  </main>
+
+  <div class="оверлей" id="waveOverlay">
+    <div class="модалка">
+      <h2 id="waveTitle">Мягкая волна</h2>
+      <p id="waveText">Просто смотрите и идите по шагам.</p>
+      <div class="ряд-модалки">
+        <button class="кнопка" id="waveMain" type="button">Начать</button>
+        <button class="кнопка" id="waveClose" type="button">Закрыть</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const body = document.body;
+    const tabs = document.querySelectorAll(".таб-кнопка");
+    const views = document.querySelectorAll(".вкладка");
+    const modeBtn = document.getElementById("кнопкаРежима");
+    const modeTitle = document.getElementById("режимЗаголовок");
+    const slider = document.getElementById("шкалаРесурса");
+    const stateText = document.getElementById("состояниеТекст");
+    const stateDesc = document.getElementById("подписьРесурса");
+    const fill = document.getElementById("шкалаЗаполнение");
+    const thoughtInput = document.getElementById("полеМысли");
+    const addThoughtBtn = document.getElementById("кнопкаВынести");
+    const garden = document.getElementById("сад");
+    const emptyGarden = document.getElementById("пустойСад");
+    const actionsPanel = document.getElementById("панельДействий");
+    const btnCompress = document.getElementById("действиеСжать");
+    const btnThrow = document.getElementById("действиеВдаль");
+    const btnDissolve = document.getElementById("действиеРастворить");
+    const waveBtn = document.getElementById("кнопкаВолна");
+    const waveOverlay = document.getElementById("waveOverlay");
+    const waveTitle = document.getElementById("waveTitle");
+    const waveText = document.getElementById("waveText");
+    const waveMain = document.getElementById("waveMain");
+    const waveClose = document.getElementById("waveClose");
+    const bgCanvas = document.getElementById("bgCanvas");
+    const bgCtx = bgCanvas.getContext("2d");
+    const calmCanvas = document.getElementById("calmCanvas");
+    const calmCtx = calmCanvas.getContext("2d");
+    let mode = "auto";
+    let selectedId = null;
+    let selectedEl = null;
+    let waveRunning = false;
+    let waveStep = 0;
+    let calmTime = 0;
+    const states = [
+      { title: "Тяжело", desc: "Лучше снизить нагрузку и убрать лишнее." },
+      { title: "Ниже обычного", desc: "Оставьте только самое нужное." },
+      { title: "Спокойно", desc: "Можно двигаться без спешки." },
+      { title: "Собранно", desc: "Хорошее состояние для важных дел." },
+      { title: "Сильно", desc: "Есть запас внимания и сил." }
+    ];
+    const waveSteps = [
+      { title: "Мягкая волна", text: "Просто смотрите и идите по шагам." },
+      { title: "Посмотрите вокруг", text: "Найдите взглядом 3 спокойных предмета." },
+      { title: "Почувствуйте опору", text: "Заметьте стопы, спину и поверхность под ладонью." },
+      { title: "Сделайте выдох", text: "Медленно выдыхайте дольше, чем вдыхаете." }
+    ];
+    let creatures = JSON.parse(localStorage.getItem("garden_items") || "[]");
+    function saveGarden() { localStorage.setItem("garden_items", JSON.stringify(creatures)); }
+    function showTab(tabId) {
+      views.forEach(v => v.classList.remove("активна"));
+      tabs.forEach(t => t.classList.remove("активен"));
+      const view = document.getElementById("tab-" + tabId);
+      const btn = document.querySelector(`.таб-кнопка[data-tab="${tabId}"]`);
+      if (view) view.classList.add("активна");
+      if (btn) btn.classList.add("активен");
+      if (tabId !== "garden") clearSelection();
+      requestAnimationFrame(() => resizeCalmCanvas());
+    }
+    tabs.forEach(btn => btn.addEventListener("click", () => showTab(btn.dataset.tab)));
+    function updateState() {
+      const v = parseInt(slider.value, 10);
+      stateText.textContent = states[v].title;
+      stateDesc.textContent = states[v].desc;
+      fill.style.width = (v / 4) * 100 + "%";
+    }
+    slider.addEventListener("input", updateState);
+    updateState();
+    function applyTheme() {
+      const hour = new Date().getHours();
+      const isNight = mode === "night" || (mode === "auto" && (hour < 7 || hour > 20));
+      body.className = isNight ? "ночь" : "свет";
+      modeTitle.textContent = isNight ? "Ночной покой" : "Дневной свет";
+      const label = mode === "auto" ? "авто" : mode === "light" ? "свет" : "ночь";
+      modeBtn.textContent = "Тема: " + label;
+      renderGarden();
+      resizeBgCanvas();
+      resizeCalmCanvas();
+    }
+    modeBtn.addEventListener("click", () => {
+      if (mode === "auto") mode = "light";
+      else if (mode === "light") mode = "night";
+      else mode = "auto";
+      applyTheme();
+    });
+    function randomHue() {
+      const palette = [18, 32, 42, 58, 142, 168, 196, 228, 286, 326];
+      return palette[Math.floor(Math.random() * palette.length)];
+    }
+    function addCreature() {
+      const txt = thoughtInput.value.trim();
+      if (!txt) return;
+      const hue = randomHue();
+      creatures.push({
+        id: Date.now() + Math.floor(Math.random() * 1000),
+        text: txt,
+        x: Math.random() * 66 + 8,
+        y: Math.random() * 62 + 12,
+        colorLight: `hsla(${hue}, 58%, 74%, 0.52)`,
+        colorNight: `hsla(${hue}, 44%, 48%, 0.26)`
+      });
+      thoughtInput.value = "";
+      saveGarden();
+      renderGarden();
+      showTab("garden");
+    }
+    addThoughtBtn.addEventListener("click", addCreature);
+    function clearSelection() {
+      selectedId = null;
+      if (selectedEl) selectedEl.classList.remove("выбран");
+      selectedEl = null;
+      actionsPanel.classList.remove("показать");
+    }
+    function selectCreature(id, el) {
+      if (selectedEl) selectedEl.classList.remove("выбран");
+      selectedId = id;
+      selectedEl = el;
+      selectedEl.classList.add("выбран");
+      actionsPanel.classList.add("показать");
+    }
+    function renderGarden() {
+      clearSelection();
+      garden.querySelectorAll(".существо").forEach(el => el.remove());
+      if (!creatures.length) {
+        emptyGarden.style.display = "grid";
+        return;
+      }
+      emptyGarden.style.display = "none";
+      creatures.forEach(c => {
+        const el = document.createElement("button");
+        el.type = "button";
+        el.className = "существо";
+        el.dataset.id = c.id;
+        el.style.left = c.x + "%";
+        el.style.top = c.y + "%";
+        el.style.background = body.classList.contains("ночь") ? c.colorNight : c.colorLight;
+        el.innerHTML = `<span>${c.text}</span>`;
+        el.addEventListener("click", (e) => { e.stopPropagation(); selectCreature(c.id, el); });
+        garden.appendChild(el);
+      });
+    }
+    garden.addEventListener("click", (e) => { if (e.target === garden) clearSelection(); });
+    function spawnMagicDustFromElement(el) {
+      const gardenRect = garden.getBoundingClientRect();
+      const rect = el.getBoundingClientRect();
+      const centerX = rect.left - gardenRect.left + rect.width / 2;
+      const centerY = rect.top - gardenRect.top + rect.height / 2;
+      const isNight = body.classList.contains("ночь");
+      const colors = isNight
+        ? ["rgba(236,244,239,0.9)", "rgba(211,226,216,0.75)", "rgba(181,204,190,0.55)", "rgba(214,191,147,0.55)"]
+        : ["rgba(255,255,255,0.92)", "rgba(247,237,224,0.88)", "rgba(231,209,175,0.72)", "rgba(214,188,150,0.62)"];
+      for (let i = 0; i < 22; i++) {
+        const p = document.createElement("div");
+        p.className = "магия-пыль";
+        p.style.left = `${centerX - 4}px`;
+        p.style.top = `${centerY - 4}px`;
+        p.style.background = colors[i % colors.length];
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 22 + Math.random() * 60;
+        const dx = Math.cos(angle) * dist;
+        const dy = Math.sin(angle) * dist;
+        p.style.setProperty("--dx", `${dx}px`);
+        p.style.setProperty("--dy", `${dy}px`);
+        garden.appendChild(p);
+        setTimeout(() => p.remove(), 1300);
+      }
+    }
+    function removeSelected(animationType) {
+      if (!selectedId || !selectedEl) return;
+      const currentId = selectedId;
+      const currentEl = selectedEl;
+      if (animationType === "сжатие") currentEl.classList.add("сжатие");
+      if (animationType === "вдаль") {
+        currentEl.style.left = "108%";
+        currentEl.style.top = "6%";
+        currentEl.style.transform = "scale(0.55) rotate(12deg)";
+        currentEl.style.opacity = "0";
+        currentEl.style.filter = "blur(6px)";
+      }
+      if (animationType === "растворение") {
+        spawnMagicDustFromElement(currentEl);
+        currentEl.style.borderRadius = "50%";
+        currentEl.style.transform = "scale(0.55)";
+        currentEl.style.opacity = "0";
+        currentEl.style.filter = "blur(16px) saturate(0.7)";
+      }
+      clearSelection();
+      setTimeout(() => {
+        creatures = creatures.filter(item => item.id !== currentId);
+        saveGarden();
+        renderGarden();
+      }, animationType === "сжатие" ? 1850 : 1250);
+    }
+    btnCompress.addEventListener("click", () => removeSelected("сжатие"));
+    btnThrow.addEventListener("click", () => removeSelected("вдаль"));
+    btnDissolve.addEventListener("click", () => removeSelected("растворение"));
+    function openWave() {
+      waveRunning = false;
+      waveStep = 0;
+      updateWaveUI();
+      waveOverlay.style.display = "flex";
+    }
+    function closeWaveModal() {
+      waveOverlay.style.display = "none";
+      waveRunning = false;
+      waveStep = 0;
+      updateWaveUI();
+    }
+    function updateWaveUI() {
+      waveTitle.textContent = waveSteps[waveStep].title;
+      waveText.textContent = waveSteps[waveStep].text;
+      if (!waveRunning) waveMain.textContent = "Начать";
+      else if (waveStep < waveSteps.length - 1) waveMain.textContent = "Дальше";
+      else waveMain.textContent = "Завершить";
+    }
+    function nextWaveStep() {
+      if (!waveRunning) {
+        waveRunning = true;
+        waveStep = 1;
+        updateWaveUI();
+        return;
+      }
+      if (waveStep < waveSteps.length - 1) {
+        waveStep += 1;
+        updateWaveUI();
+      } else closeWaveModal();
+    }
+    waveBtn.addEventListener("click", openWave);
+    waveMain.addEventListener("click", nextWaveStep);
+    waveClose.addEventListener("click", closeWaveModal);
+    waveOverlay.addEventListener("click", (e) => { if (e.target === waveOverlay) closeWaveModal(); });
+    function resizeCanvasToBox(canvas, ctx) {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = Math.max(1, rect.width * dpr);
+      canvas.height = Math.max(1, rect.height * dpr);
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.scale(dpr, dpr);
+    }
+    function resizeBgCanvas() { resizeCanvasToBox(bgCanvas, bgCtx); }
+    function resizeCalmCanvas() { resizeCanvasToBox(calmCanvas, calmCtx); }
+    function drawBranch(x, y, len, angle, depth) {
+      if (depth === 0) return;
+      const x2 = x + Math.cos(angle) * len;
+      const y2 = y + Math.sin(angle) * len;
+      bgCtx.beginPath();
+      bgCtx.moveTo(x, y);
+      bgCtx.lineTo(x2, y2);
+      bgCtx.strokeStyle = body.classList.contains("ночь") ? "rgba(220,235,228,0.05)" : "rgba(169,133,83,0.08)";
+      bgCtx.lineWidth = Math.max(0.6, depth * 0.68);
+      bgCtx.stroke();
+      drawBranch(x2, y2, len * 0.74, angle - 0.42, depth - 1);
+      drawBranch(x2, y2, len * 0.74, angle + 0.42, depth - 1);
+    }
+    function drawBackground() {
+      const w = bgCanvas.clientWidth;
+      const h = bgCanvas.clientHeight;
+      bgCtx.clearRect(0, 0, w, h);
+      drawBranch(w / 2, h + 8, h / 6.6, -Math.PI / 2, 8);
+      requestAnimationFrame(drawBackground);
+    }
+    function drawSoftPetal(cx, cy, radius, angle, t, isNight) {
+      calmCtx.save();
+      calmCtx.translate(cx, cy);
+      calmCtx.rotate(angle + Math.sin(t * 0.00045 + angle) * 0.08);
+      const length = radius * 1.05;
+      const width = radius * 0.28;
+      calmCtx.beginPath();
+      calmCtx.moveTo(0, 0);
+      calmCtx.bezierCurveTo(width, -width, length * 0.75, -width * 0.7, length, 0);
+      calmCtx.bezierCurveTo(length * 0.75, width * 0.7, width, width, 0, 0);
+      const grad = calmCtx.createLinearGradient(0, 0, length, 0);
+      grad.addColorStop(0, isNight ? "rgba(245,250,247,0.18)" : "rgba(255,255,255,0.34)");
+      grad.addColorStop(0.5, isNight ? "rgba(205,223,212,0.10)" : "rgba(231,214,186,0.18)");
+      grad.addColorStop(1, "rgba(255,255,255,0)");
+      calmCtx.fillStyle = grad;
+      calmCtx.fill();
+      calmCtx.strokeStyle = isNight ? "rgba(245,250,247,0.10)" : "rgba(255,255,255,0.18)";
+      calmCtx.lineWidth = 1.1;
+      calmCtx.stroke();
+      calmCtx.restore();
+    }
+    function drawHalo(cx, cy, t, isNight) {
+      for (let i = 0; i < 3; i++) {
+        const pulse = ((t * 0.00010 + i * 0.30) % 1);
+        const radius = 34 + pulse * 145;
+        const alpha = (1 - pulse) * (isNight ? 0.10 : 0.13);
+        calmCtx.beginPath();
+        calmCtx.arc(cx, cy, radius, 0, Math.PI * 2);
+        calmCtx.strokeStyle = isNight ? `rgba(226,236,229,${alpha})` : `rgba(176,146,104,${alpha})`;
+        calmCtx.lineWidth = 1.25 - pulse * 0.4;
+        calmCtx.stroke();
+      }
+    }
+    function drawPearlCore(cx, cy, w, h, t, isNight) {
+      const breath = 0.5 + 0.5 * Math.sin(t * 0.00105);
+      const r = Math.min(w, h) * (0.11 + breath * 0.018);
+      const glow = calmCtx.createRadialGradient(cx, cy, 12, cx, cy, Math.min(w, h) * 0.34);
+      glow.addColorStop(0, isNight ? "rgba(243,248,245,0.28)" : "rgba(255,255,255,0.52)");
+      glow.addColorStop(0.45, isNight ? "rgba(194,216,203,0.10)" : "rgba(225,206,177,0.16)");
+      glow.addColorStop(1, "rgba(255,255,255,0)");
+      calmCtx.fillStyle = glow;
+      calmCtx.fillRect(0, 0, w, h);
+      const pearl = calmCtx.createRadialGradient(cx - r * 0.25, cy - r * 0.25, r * 0.08, cx, cy, r);
+      pearl.addColorStop(0, isNight ? "rgba(252,254,253,0.50)" : "rgba(255,255,255,0.96)");
+      pearl.addColorStop(0.4, isNight ? "rgba(224,236,228,0.22)" : "rgba(247,239,229,0.64)");
+      pearl.addColorStop(1, isNight ? "rgba(181,201,188,0.08)" : "rgba(221,204,178,0.14)");
+      calmCtx.beginPath();
+      calmCtx.arc(cx, cy, r, 0, Math.PI * 2);
+      calmCtx.fillStyle = pearl;
+      calmCtx.fill();
+    }
+    function drawCalm() {
+      const w = calmCanvas.clientWidth;
+      const h = calmCanvas.clientHeight;
+      calmCtx.clearRect(0, 0, w, h);
+      const isNight = body.classList.contains("ночь");
+      const cx = w / 2;
+      const cy = h / 2;
+      const bgGlow = calmCtx.createRadialGradient(cx, cy, 20, cx, cy, Math.min(w, h) * 0.46);
+      bgGlow.addColorStop(0, isNight ? "rgba(226,236,229,0.08)" : "rgba(255,255,255,0.18)");
+      bgGlow.addColorStop(0.5, isNight ? "rgba(139,167,151,0.04)" : "rgba(212,190,157,0.08)");
+      bgGlow.addColorStop(1, "rgba(255,255,255,0)");
+      calmCtx.fillStyle = bgGlow;
+      calmCtx.fillRect(0, 0, w, h);
+      drawHalo(cx, cy, calmTime, isNight);
+      const petalCount = 8;
+      const baseRadius = Math.min(w, h) * 0.22;
+      for (let i = 0; i < petalCount; i++) drawSoftPetal(cx, cy, baseRadius, (Math.PI * 2 / petalCount) * i, calmTime + i * 180, isNight);
+      drawPearlCore(cx, cy, w, h, calmTime, isNight);
+      calmTime += 16;
+      requestAnimationFrame(drawCalm);
+    }
+    window.addEventListener("resize", () => { resizeBgCanvas(); resizeCalmCanvas(); });
+    setInterval(() => {
+      if (!creatures.length) return;
+      creatures = creatures.map(c => ({ ...c, x: Math.max(6, Math.min(84, c.x + (Math.random() - 0.5) * 3.4)), y: Math.max(9, Math.min(82, c.y + (Math.random() - 0.5) * 3.4)) }));
+      const nodes = garden.querySelectorAll(".существо");
+      nodes.forEach((el, i) => {
+        if (!creatures[i]) return;
+        if (selectedId && String(creatures[i].id) === String(selectedId)) return;
+        el.style.left = creatures[i].x + "%";
+        el.style.top = creatures[i].y + "%";
+      });
+      saveGarden();
+    }, 5200);
+    applyTheme();
+    renderGarden();
+    updateWaveUI();
+    resizeBgCanvas();
+    resizeCalmCanvas();
+    requestAnimationFrame(drawBackground);
+    requestAnimationFrame(drawCalm);
+  </script>
+</body>
+</html>
