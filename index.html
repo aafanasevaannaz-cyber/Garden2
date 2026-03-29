@@ -317,6 +317,16 @@
         linear-gradient(180deg, rgba(255,255,255,0.30), rgba(255,255,255,0.18));
     }
 
+    .сад-контейнер::before,
+    .сад-контейнер::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.45s var(--ease);
+    }
+
     .пустой-сад {
       position: absolute;
       inset: 0;
@@ -618,9 +628,9 @@
 
     body.ночь {
       background:
-        radial-gradient(circle at 50% -6%, rgba(212, 192, 150, 0.08), transparent 18%),
-        radial-gradient(circle at 20% 14%, rgba(86, 108, 100, 0.14), transparent 24%),
-        radial-gradient(circle at 82% 12%, rgba(60, 73, 83, 0.16), transparent 22%),
+        radial-gradient(circle at 50% -6%, rgba(218, 196, 151, 0.08), transparent 18%),
+        radial-gradient(circle at 20% 14%, rgba(82, 105, 97, 0.14), transparent 24%),
+        radial-gradient(circle at 82% 12%, rgba(58, 72, 86, 0.16), transparent 22%),
         radial-gradient(circle at 50% 36%, rgba(34, 39, 47, 0.14), transparent 36%),
         linear-gradient(180deg, #020304 0%, #05070a 22%, #090d12 46%, #0d1217 70%, #11161b 100%);
       color: var(--night-text);
@@ -628,14 +638,29 @@
 
     body.ночь .фон-свет {
       background:
-        radial-gradient(circle at 50% 18%, rgba(244, 234, 213, 0.035), transparent 18%),
-        radial-gradient(circle at 24% 20%, rgba(124, 144, 134, 0.06), transparent 22%),
-        radial-gradient(circle at 78% 18%, rgba(96, 110, 126, 0.06), transparent 20%);
-      opacity: 0.9;
+        radial-gradient(circle at 50% 18%, rgba(244, 234, 213, 0.028), transparent 16%),
+        radial-gradient(circle at 24% 20%, rgba(124, 144, 134, 0.05), transparent 22%),
+        radial-gradient(circle at 78% 18%, rgba(96, 110, 126, 0.05), transparent 20%),
+        radial-gradient(circle at 11% 10%, rgba(255,255,255,0.92) 0 0.5px, transparent 1px),
+        radial-gradient(circle at 17% 22%, rgba(255,255,255,0.78) 0 0.6px, transparent 1.1px),
+        radial-gradient(circle at 28% 8%, rgba(255,255,255,0.62) 0 0.55px, transparent 1px),
+        radial-gradient(circle at 36% 17%, rgba(255,255,255,0.84) 0 0.6px, transparent 1.1px),
+        radial-gradient(circle at 46% 9%, rgba(255,255,255,0.66) 0 0.55px, transparent 1px),
+        radial-gradient(circle at 58% 14%, rgba(255,255,255,0.80) 0 0.6px, transparent 1.1px),
+        radial-gradient(circle at 67% 7%, rgba(255,255,255,0.72) 0 0.55px, transparent 1px),
+        radial-gradient(circle at 76% 18%, rgba(255,255,255,0.88) 0 0.6px, transparent 1.1px),
+        radial-gradient(circle at 88% 10%, rgba(255,255,255,0.68) 0 0.55px, transparent 1px),
+        linear-gradient(116deg,
+          transparent 28%,
+          rgba(186, 202, 236, 0.03) 42%,
+          rgba(233, 222, 194, 0.05) 49%,
+          rgba(188, 206, 243, 0.035) 56%,
+          transparent 70%);
+      opacity: 0.95;
     }
 
     body.ночь .фракталы {
-      opacity: 0.38;
+      opacity: 0.34;
     }
 
     body.ночь .рама {
@@ -680,15 +705,43 @@
 
     body.ночь .сад-контейнер {
       background:
-        radial-gradient(circle at 50% 16%, rgba(236, 241, 251, 0.026), transparent 16%),
-        radial-gradient(circle at 28% 28%, rgba(79, 95, 114, 0.14), transparent 24%),
-        radial-gradient(circle at 76% 22%, rgba(82, 107, 98, 0.11), transparent 22%),
+        radial-gradient(circle at 50% 16%, rgba(236, 241, 251, 0.022), transparent 16%),
+        radial-gradient(circle at 28% 28%, rgba(79, 95, 114, 0.13), transparent 24%),
+        radial-gradient(circle at 76% 22%, rgba(82, 107, 98, 0.10), transparent 22%),
         linear-gradient(180deg, rgba(14, 18, 24, 0.94), rgba(7, 10, 14, 0.98));
       border-color: rgba(236,228,212,0.07);
       box-shadow:
         0 22px 44px rgba(0,0,0,0.30),
         inset 0 1px 0 rgba(255,255,255,0.03),
         inset 0 -40px 80px rgba(0,0,0,0.30);
+    }
+
+    body.ночь .сад-контейнер::before {
+      opacity: 1;
+      background:
+        radial-gradient(circle at 12% 12%, rgba(255,255,255,0.82) 0 0.45px, transparent 0.95px),
+        radial-gradient(circle at 18% 28%, rgba(255,255,255,0.68) 0 0.5px, transparent 1px),
+        radial-gradient(circle at 29% 10%, rgba(255,255,255,0.76) 0 0.5px, transparent 1px),
+        radial-gradient(circle at 38% 22%, rgba(255,255,255,0.58) 0 0.45px, transparent 0.95px),
+        radial-gradient(circle at 47% 11%, rgba(255,255,255,0.72) 0 0.5px, transparent 1px),
+        radial-gradient(circle at 57% 17%, rgba(255,255,255,0.66) 0 0.5px, transparent 1px),
+        radial-gradient(circle at 66% 8%, rgba(255,255,255,0.76) 0 0.5px, transparent 1px),
+        radial-gradient(circle at 74% 21%, rgba(255,255,255,0.62) 0 0.45px, transparent 0.95px),
+        radial-gradient(circle at 84% 13%, rgba(255,255,255,0.82) 0 0.5px, transparent 1px),
+        linear-gradient(118deg,
+          transparent 28%,
+          rgba(188, 203, 236, 0.025) 42%,
+          rgba(236, 223, 192, 0.045) 49%,
+          rgba(184, 201, 236, 0.03) 56%,
+          transparent 70%);
+      mix-blend-mode: screen;
+    }
+
+    body.ночь .сад-контейнер::after {
+      opacity: 1;
+      background:
+        radial-gradient(circle at 50% 22%, transparent 0, transparent 52%, rgba(0,0,0,0.24) 100%),
+        linear-gradient(180deg, rgba(0,0,0,0.02), rgba(0,0,0,0.26));
     }
 
     body.ночь .шкала-фон {
