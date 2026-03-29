@@ -66,6 +66,7 @@
       background:
         radial-gradient(circle at 24% 14%, rgba(255,255,255,0.42), transparent 20%),
         radial-gradient(circle at 82% 14%, rgba(221, 200, 168, 0.18), transparent 18%);
+      transition: opacity 0.45s var(--ease), background 0.45s var(--ease);
     }
 
     .фракталы {
@@ -74,6 +75,7 @@
       z-index: 1;
       pointer-events: none;
       opacity: 0.72;
+      transition: opacity 0.45s var(--ease);
     }
 
     .оболочка {
@@ -616,22 +618,35 @@
 
     body.ночь {
       background:
-        radial-gradient(circle at 50% -8%, rgba(214, 192, 154, 0.12), transparent 22%),
-        radial-gradient(circle at 18% 12%, rgba(112, 136, 124, 0.10), transparent 24%),
-        radial-gradient(circle at 84% 16%, rgba(78, 95, 88, 0.12), transparent 24%),
-        linear-gradient(180deg, #05080a 0%, #0a1012 26%, #10171a 58%, #151b1e 100%);
+        radial-gradient(circle at 50% -6%, rgba(212, 192, 150, 0.08), transparent 18%),
+        radial-gradient(circle at 20% 14%, rgba(86, 108, 100, 0.14), transparent 24%),
+        radial-gradient(circle at 82% 12%, rgba(60, 73, 83, 0.16), transparent 22%),
+        radial-gradient(circle at 50% 36%, rgba(34, 39, 47, 0.14), transparent 36%),
+        linear-gradient(180deg, #020304 0%, #05070a 22%, #090d12 46%, #0d1217 70%, #11161b 100%);
       color: var(--night-text);
+    }
+
+    body.ночь .фон-свет {
+      background:
+        radial-gradient(circle at 50% 18%, rgba(244, 234, 213, 0.035), transparent 18%),
+        radial-gradient(circle at 24% 20%, rgba(124, 144, 134, 0.06), transparent 22%),
+        radial-gradient(circle at 78% 18%, rgba(96, 110, 126, 0.06), transparent 20%);
+      opacity: 0.9;
+    }
+
+    body.ночь .фракталы {
+      opacity: 0.38;
     }
 
     body.ночь .рама {
       background:
-        linear-gradient(180deg, rgba(22, 29, 31, 0.82), rgba(12, 17, 19, 0.70));
-      border: 1px solid rgba(236, 228, 212, 0.10);
+        linear-gradient(180deg, rgba(17, 21, 26, 0.84), rgba(9, 12, 16, 0.80));
+      border: 1px solid rgba(236, 228, 212, 0.08);
       box-shadow:
-        0 32px 96px rgba(0,0,0,0.44),
-        0 10px 28px rgba(4,7,9,0.34),
-        inset 0 1px 0 rgba(255,255,255,0.07),
-        inset 0 -1px 0 rgba(255,255,255,0.02);
+        0 42px 120px rgba(0,0,0,0.56),
+        0 12px 34px rgba(3,5,8,0.40),
+        inset 0 1px 0 rgba(255,255,255,0.06),
+        inset 0 -1px 0 rgba(255,255,255,0.015);
     }
 
     body.ночь h1,
@@ -643,42 +658,54 @@
     body.ночь .лейбл,
     body.ночь .описание,
     body.ночь .подписи-шкалы {
-      color: rgba(229,236,231,0.70);
+      color: rgba(229,236,231,0.72);
     }
 
     body.ночь .карточка,
-    body.ночь .сад-контейнер,
     body.ночь .панель-действий,
     body.ночь .помощь-визуал,
     body.ночь textarea,
     body.ночь .навигация {
       background:
-        linear-gradient(180deg, rgba(255,255,255,0.085), rgba(255,255,255,0.035));
-      border-color: rgba(236,228,212,0.10);
+        linear-gradient(180deg, rgba(255,255,255,0.072), rgba(255,255,255,0.026));
+      border-color: rgba(236,228,212,0.08);
       color: var(--night-text);
       box-shadow:
-        0 16px 36px rgba(0,0,0,0.22),
-        inset 0 1px 0 rgba(255,255,255,0.07),
-        inset 0 -1px 0 rgba(255,255,255,0.02);
-      backdrop-filter: blur(18px) saturate(1.06);
-      -webkit-backdrop-filter: blur(18px) saturate(1.06);
+        0 18px 40px rgba(0,0,0,0.26),
+        inset 0 1px 0 rgba(255,255,255,0.055),
+        inset 0 -1px 0 rgba(255,255,255,0.015);
+      backdrop-filter: blur(18px) saturate(1.04);
+      -webkit-backdrop-filter: blur(18px) saturate(1.04);
+    }
+
+    body.ночь .сад-контейнер {
+      background:
+        radial-gradient(circle at 50% 16%, rgba(236, 241, 251, 0.026), transparent 16%),
+        radial-gradient(circle at 28% 28%, rgba(79, 95, 114, 0.14), transparent 24%),
+        radial-gradient(circle at 76% 22%, rgba(82, 107, 98, 0.11), transparent 22%),
+        linear-gradient(180deg, rgba(14, 18, 24, 0.94), rgba(7, 10, 14, 0.98));
+      border-color: rgba(236,228,212,0.07);
+      box-shadow:
+        0 22px 44px rgba(0,0,0,0.30),
+        inset 0 1px 0 rgba(255,255,255,0.03),
+        inset 0 -40px 80px rgba(0,0,0,0.30);
     }
 
     body.ночь .шкала-фон {
-      background: rgba(255,255,255,0.09);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+      background: rgba(255,255,255,0.08);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.025);
     }
 
     body.ночь .шкала-заполнение {
       background: linear-gradient(
         90deg,
-        rgba(214,191,147,0.86) 0%,
-        rgba(175,168,126,0.74) 44%,
-        rgba(128,153,136,0.70) 100%
+        rgba(214,191,147,0.84) 0%,
+        rgba(171,164,123,0.72) 44%,
+        rgba(123,147,132,0.66) 100%
       );
       box-shadow:
-        0 0 18px rgba(214,191,147,0.16),
-        inset 0 1px 0 rgba(255,255,255,0.12);
+        0 0 18px rgba(214,191,147,0.12),
+        inset 0 1px 0 rgba(255,255,255,0.10);
     }
 
     body.ночь input[type="range"]::-webkit-slider-thumb {
@@ -686,7 +713,7 @@
       border-color: #d7bf97;
       box-shadow:
         0 10px 24px rgba(0,0,0,0.24),
-        0 0 0 1px rgba(255,255,255,0.08),
+        0 0 0 1px rgba(255,255,255,0.07),
         inset 0 1px 0 rgba(255,255,255,0.96);
     }
 
@@ -695,69 +722,69 @@
     }
 
     body.ночь textarea::placeholder {
-      color: rgba(229,238,232,0.36);
+      color: rgba(229,238,232,0.34);
     }
 
     body.ночь .таб-кнопка {
-      color: rgba(224,232,226,0.50);
+      color: rgba(224,232,226,0.48);
     }
 
     body.ночь .таб-кнопка.активен {
-      background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06));
+      background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.045));
       color: #dcc39a;
       box-shadow:
-        0 8px 18px rgba(0,0,0,0.16),
-        inset 0 1px 0 rgba(255,255,255,0.10);
+        0 8px 18px rgba(0,0,0,0.18),
+        inset 0 1px 0 rgba(255,255,255,0.08);
     }
 
     body.ночь .кнопка {
       background:
-        linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.045));
+        linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.036));
       color: var(--night-text);
-      border-color: rgba(236,228,212,0.11);
+      border-color: rgba(236,228,212,0.09);
       box-shadow:
-        0 12px 28px rgba(0,0,0,0.18),
-        inset 0 1px 0 rgba(255,255,255,0.08),
-        inset 0 -1px 0 rgba(255,255,255,0.02);
+        0 12px 28px rgba(0,0,0,0.20),
+        inset 0 1px 0 rgba(255,255,255,0.065),
+        inset 0 -1px 0 rgba(255,255,255,0.015);
     }
 
     body.ночь .существо {
       color: rgba(244,249,246,0.94);
-      border-color: rgba(255,255,255,0.18);
+      border-color: rgba(255,255,255,0.16);
       box-shadow:
-        0 24px 44px rgba(0,0,0,0.30),
-        0 0 0 1px rgba(255,255,255,0.04),
-        inset 0 1px 0 rgba(255,255,255,0.10);
+        0 26px 48px rgba(0,0,0,0.34),
+        0 0 0 1px rgba(255,255,255,0.03),
+        inset 0 1px 0 rgba(255,255,255,0.08);
     }
 
     body.ночь .существо span {
-      text-shadow: 0 1px 0 rgba(0,0,0,0.28);
+      text-shadow: 0 1px 0 rgba(0,0,0,0.30);
     }
 
     body.ночь .существо.выбран {
       box-shadow:
-        0 0 0 2px rgba(220,195,154,0.42),
-        0 24px 50px rgba(0,0,0,0.34),
-        inset 0 1px 0 rgba(255,255,255,0.10);
+        0 0 0 2px rgba(220,195,154,0.36),
+        0 26px 54px rgba(0,0,0,0.38),
+        inset 0 1px 0 rgba(255,255,255,0.08);
     }
 
     body.ночь .пустой-сад {
-      color: rgba(229,238,232,0.32);
+      color: rgba(229,238,232,0.30);
     }
 
     body.ночь .модалка {
       background:
-        linear-gradient(180deg, rgba(24,31,33,0.96), rgba(14,19,21,0.94));
-      border: 1px solid rgba(236,228,212,0.10);
+        linear-gradient(180deg, rgba(18,24,29,0.97), rgba(11,15,19,0.95));
+      border: 1px solid rgba(236,228,212,0.08);
       color: var(--night-text);
       box-shadow:
-        0 32px 90px rgba(0,0,0,0.44),
-        inset 0 1px 0 rgba(255,255,255,0.05);
+        0 34px 94px rgba(0,0,0,0.48),
+        inset 0 1px 0 rgba(255,255,255,0.04);
     }
 
     body.ночь .модалка p,
     body.ночь .подпись-автора {
-      color: rgba(229,238,232,0.34);
+      color: rgba(229,238,232,0.32);
     }
 
     @media (max-width: 390px) {
