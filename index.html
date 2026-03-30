@@ -1,208 +1,237 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Garden2</title>
-<style>
-:root{
-  --ease:cubic-bezier(.22,1,.36,1);
-  --r1:34px; --r2:24px; --r3:18px;
-  --day-bg1:#f6f0e8; --day-bg2:#ece2d4; --day-bg3:#ddd0bc;
-  --day-text:#241d18; --day-soft:rgba(36,29,24,.68); --day-line:rgba(255,255,255,.52); --day-accent:#9c7746;
-  --night-bg1:#0b0b0d; --night-bg2:#141416; --night-bg3:#1c1b1a; --night-bg4:#2d342d;
-  --night-text:#edf3ef; --night-soft:rgba(237,243,239,.72); --night-line:rgba(231,221,207,.10); --night-accent:#b89d74;
-}
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{width:100%;height:100%}
-body{
-  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Inter",sans-serif;
-  min-height:100vh;min-height:100dvh;overflow:hidden;transition:background .45s var(--ease),color .3s var(--ease);
-}
-body.day{
-  color:var(--day-text);
-  background:
-    radial-gradient(circle at 50% 0%, rgba(255,255,255,.86), transparent 34%),
-    linear-gradient(180deg,var(--day-bg1) 0%,var(--day-bg2) 48%,var(--day-bg3) 100%);
-}
-body.night{
-  color:var(--night-text);
-  background:
-    radial-gradient(circle at 18% 16%, rgba(77,86,72,.18) 0%, transparent 28%),
-    radial-gradient(circle at 82% 14%, rgba(45,52,45,.16) 0%, transparent 24%),
-    linear-gradient(180deg,var(--night-bg1) 0%,var(--night-bg2) 28%,var(--night-bg3) 58%,var(--night-bg4) 100%);
-}
-.sky{position:fixed;inset:0;pointer-events:none;z-index:0}
-body.day .sky{
-  background:
-    radial-gradient(circle at 24% 14%, rgba(255,255,255,.42), transparent 20%),
-    radial-gradient(circle at 82% 14%, rgba(221,200,168,.18), transparent 18%);
-}
-body.night .sky{
-  background:
-    radial-gradient(circle at 10% 10%, rgba(255,250,241,.75) 0 .65px, transparent 1.2px),
-    radial-gradient(circle at 21% 18%, rgba(255,247,232,.55) 0 .55px, transparent 1.05px),
-    radial-gradient(circle at 34% 12%, rgba(255,248,236,.7) 0 .7px, transparent 1.25px),
-    radial-gradient(circle at 61% 15%, rgba(255,248,236,.58) 0 .55px, transparent 1.05px),
-    radial-gradient(circle at 83% 10%, rgba(255,250,241,.72) 0 .7px, transparent 1.2px),
-    linear-gradient(104deg,transparent 26%,rgba(231,221,207,.04) 44%,rgba(184,157,116,.08) 50%,rgba(231,221,207,.04) 58%,transparent 74%);
-}
-.shell{position:relative;z-index:2;min-height:100dvh;display:flex;justify-content:center;padding:16px}
-.frame{
-  width:min(100%,510px); min-height:calc(100dvh - 32px); display:flex; flex-direction:column; overflow:hidden; position:relative;
-  border-radius:var(--r1); backdrop-filter:blur(22px) saturate(1.06); -webkit-backdrop-filter:blur(22px) saturate(1.06);
-  transition:background .45s var(--ease), border-color .45s var(--ease), box-shadow .45s var(--ease);
-}
-body.day .frame{
-  border:1px solid var(--day-line);
-  background:linear-gradient(180deg,rgba(255,255,255,.48),rgba(255,255,255,.24));
-  box-shadow:0 24px 64px rgba(70,54,34,.08), inset 0 1px 0 rgba(255,255,255,.82), inset 0 -1px 0 rgba(255,255,255,.14);
-}
-body.night .frame{
-  border:1px solid var(--night-line);
-  background:linear-gradient(180deg,rgba(24,25,24,.82),rgba(14,16,15,.76));
-  box-shadow:0 42px 120px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.05), inset 0 -1px 0 rgba(255,255,255,.015);
-}
-header{padding:22px 20px 10px;text-align:center}
-h1{font-size:21px;font-weight:600;letter-spacing:-.02em}
-.sub{margin-top:6px;font-size:13px;line-height:1.4}
-body.day .sub{color:var(--day-soft)} body.night .sub{color:var(--night-soft)}
-.content{flex:1;position:relative;overflow:hidden}
-.view{position:absolute;inset:0;display:none;flex-direction:column;gap:14px;padding:18px;overflow:auto}.view.active{display:flex}
-.card,.garden,.actions,.helpBox,textarea,.nav{
-  border-radius:var(--r2);
-  transition:background .45s var(--ease), border-color .45s var(--ease), color .45s var(--ease);
-}
-body.day .card,body.day .garden,body.day .actions,body.day .helpBox,body.day textarea,body.day .nav{
-  background:linear-gradient(180deg,rgba(255,255,255,.44),rgba(255,255,255,.26));
-  border:1px solid rgba(255,255,255,.50);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.72),0 10px 24px rgba(0,0,0,.04);
-}
-body.night .card,body.night .garden,body.night .actions,body.night .helpBox,body.night textarea,body.night .nav{
-  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));
-  border:1px solid rgba(231,221,207,.08);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 12px 28px rgba(0,0,0,.18);
-}
-.card{padding:18px}
-.top{display:flex;justify-content:space-between;gap:12px;margin-bottom:12px}
-.label{font-size:12px;font-weight:700;letter-spacing:.04em}
-.state{font-size:28px;line-height:1.05;font-weight:600;letter-spacing:-.03em;text-align:right}
-.desc{font-size:13px;line-height:1.45}
-body.day .label,body.day .desc{color:var(--day-soft)} body.night .label,body.night .desc{color:var(--night-soft)}
-.barWrap{position:relative;margin:16px 0 12px}
-.barBg{position:absolute;inset:50% 0 auto 0;transform:translateY(-50%);height:12px;border-radius:999px;overflow:hidden}
-body.day .barBg{background:rgba(0,0,0,.05)} body.night .barBg{background:rgba(255,255,255,.08)}
-.barFill{height:100%;width:50%;border-radius:inherit}
-body.day .barFill{background:linear-gradient(90deg,#d1b895 0%,#b2a680 45%,#8a9a72 100%)}
-body.night .barFill{background:linear-gradient(90deg,#b89d74 0%,#8e7c61 45%,#4d5648 100%)}
-input[type=range]{position:relative;z-index:2;width:100%;height:34px;background:transparent;appearance:none;outline:none}
-input[type=range]::-webkit-slider-thumb{appearance:none;width:30px;height:30px;border-radius:50%}
-body.day input[type=range]::-webkit-slider-thumb{background:linear-gradient(180deg,#fff,#f2ebe2);border:2px solid var(--day-accent)}
-body.night input[type=range]::-webkit-slider-thumb{background:linear-gradient(180deg,#f8f0e4,#e4d8c6);border:2px solid var(--night-accent)}
-.scaleLabels{display:flex;justify-content:space-between;gap:6px;margin-top:8px;font-size:10px;line-height:1.2}
-.scaleLabels span{flex:1;text-align:center}
-body.day .scaleLabels{color:rgba(36,29,24,.42)} body.night .scaleLabels{color:rgba(237,243,239,.38)}
-textarea{width:100%;height:120px;padding:16px;resize:none;font:inherit;font-size:15px;line-height:1.45;outline:none}
-body.day textarea{color:var(--day-text)} body.night textarea{color:var(--night-text)}
-body.day textarea::placeholder{color:rgba(58,44,31,.42)} body.night textarea::placeholder{color:rgba(237,243,239,.34)}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.btn{appearance:none;width:100%;min-height:52px;border-radius:var(--r3);font:inherit;font-size:15px;font-weight:700;cursor:pointer}
-body.day .btn{
-  border:1px solid rgba(255,255,255,.66); background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(245,239,231,.92)); color:var(--day-text);
-  box-shadow:0 8px 20px rgba(0,0,0,.05), inset 0 1px 0 rgba(255,255,255,.95)
-}
-body.night .btn{
-  border:1px solid rgba(231,221,207,.09); background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.035)); color:var(--night-text);
-  box-shadow:0 12px 28px rgba(0,0,0,.20), inset 0 1px 0 rgba(255,255,255,.07)
-}
-.garden{flex:1;min-height:320px;position:relative;overflow:hidden}
-body.day .garden{background:radial-gradient(circle at 50% 18%, rgba(255,255,255,.20), transparent 28%),linear-gradient(180deg,rgba(255,255,255,.30),rgba(255,255,255,.18))}
-body.night .garden{background:linear-gradient(180deg, rgba(16,18,17,.78) 0%, rgba(11,13,12,.92) 26%, rgba(10,12,11,.98) 100%)}
-.empty{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:28px;line-height:1.45;font-size:16px;z-index:1}
-body.day .empty{color:rgba(43,36,30,.30)} body.night .empty{color:rgba(237,243,239,.30)}
-.creature{
-  position:absolute;width:84px;min-height:84px;padding:8px;border-radius:28px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:11px;line-height:1.15;font-weight:600;cursor:pointer;
-  backdrop-filter:blur(14px) saturate(1.08);-webkit-backdrop-filter:blur(14px) saturate(1.08);transition:left 1.2s var(--ease),top 1.2s var(--ease),opacity 1.4s var(--ease),filter 1.4s var(--ease)
-}
-body.day .creature{color:rgba(34,28,22,.92);border:1px solid rgba(255,255,255,.78);box-shadow:0 18px 34px rgba(0,0,0,.10), inset 0 1px 0 rgba(255,255,255,.62)}
-body.night .creature{color:rgba(244,249,246,.94);border:1px solid rgba(255,255,255,.16);box-shadow:0 18px 34px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.06)}
-.creature span{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;padding:0 2px}
-.actions{display:none;grid-template-columns:repeat(3,1fr);gap:8px;padding:10px;border-radius:20px}.actions.show{display:grid}
-.helpBox{flex:1;min-height:320px;position:relative;overflow:hidden}
-canvas#calm{position:absolute;inset:0;width:100%;height:100%}
-.nav{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px;border-radius:0}
-.tab{padding:11px 10px;border-radius:14px;font-size:12px;font-weight:600;background:none;border:none}
-body.day .tab{color:rgba(38,35,31,.48)} body.night .tab{color:rgba(224,232,226,.48)}
-body.day .tab.active{background:rgba(255,255,255,.72);color:#9a7746} body.night .tab.active{background:rgba(255,255,255,.08);color:#b89d74}
-@media (max-width:390px){.shell{padding:12px}.frame{min-height:calc(100dvh - 24px)}.view{padding:16px}.row,.actions{grid-template-columns:1fr}}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Garden2</title>
+  <style>
+    :root {
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+      --bg-1: #f4efe7;
+      --bg-2: #e9e0d3;
+      --bg-3: #ddd1bf;
+      --text-main: #241d18;
+      --text-soft: rgba(36, 29, 24, 0.66);
+      --text-faint: rgba(36, 29, 24, 0.42);
+      --card: rgba(255,255,255,0.40);
+      --card-line: rgba(255,255,255,0.54);
+      --accent: #9c7746;
+      --radius-frame: 34px;
+      --radius-panel: 24px;
+      --radius-btn: 18px;
+      --shadow: 0 24px 64px rgba(70, 54, 34, 0.08), inset 0 1px 0 rgba(255,255,255,0.82), inset 0 -1px 0 rgba(255,255,255,0.14);
+      --night-text: #ebf1ec;
+      --night-soft: rgba(235,241,236,0.68);
+      --night-faint: rgba(235,241,236,0.30);
+      --night-line: rgba(230,238,232,0.10);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body { width: 100%; height: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif;
+      min-height: 100vh; min-height: 100dvh; overflow: hidden;
+      background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.84), transparent 34%), linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 48%, var(--bg-3) 100%);
+      color: var(--text-main);
+      transition: background 0.5s var(--ease), color 0.3s var(--ease);
+    }
+    .sky { position: fixed; inset: 0; z-index: 0; pointer-events: none; transition: opacity 0.45s var(--ease), background 0.45s var(--ease); }
+    body.day .sky {
+      background: radial-gradient(circle at 24% 14%, rgba(255,255,255,0.42), transparent 20%), radial-gradient(circle at 82% 14%, rgba(221,200,168,0.18), transparent 18%);
+    }
+    body.night {
+      background:
+        radial-gradient(ellipse at 50% -10%, rgba(228,210,176,0.07) 0%, transparent 22%),
+        radial-gradient(circle at 18% 16%, rgba(77, 86, 72, 0.16) 0%, transparent 28%),
+        radial-gradient(circle at 82% 14%, rgba(45, 52, 45, 0.15) 0%, transparent 24%),
+        linear-gradient(180deg, #0b0b0d 0%, #141416 28%, #1c1b1a 58%, #2d342d 100%);
+      color: var(--night-text);
+    }
+    body.night .sky {
+      background:
+        radial-gradient(circle at 10% 10%, rgba(255,250,241,.72) 0 .6px, transparent 1.15px),
+        radial-gradient(circle at 21% 18%, rgba(255,247,232,.52) 0 .55px, transparent 1.05px),
+        radial-gradient(circle at 34% 12%, rgba(255,248,236,.66) 0 .7px, transparent 1.2px),
+        radial-gradient(circle at 61% 15%, rgba(255,248,236,.54) 0 .55px, transparent 1.05px),
+        radial-gradient(circle at 83% 10%, rgba(255,250,241,.70) 0 .65px, transparent 1.15px),
+        linear-gradient(104deg, transparent 24%, rgba(231,221,207,.03) 40%, rgba(184,157,116,.08) 50%, rgba(231,221,207,.03) 60%, transparent 76%),
+        radial-gradient(ellipse at 50% 18%, rgba(255,243,220,0.05) 0%, transparent 22%);
+      opacity: 0.96;
+    }
+    .fractals { position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: .58; transition: opacity .45s var(--ease); }
+    body.night .fractals { opacity: .20; }
+    .shell { position: relative; z-index: 2; min-height: 100dvh; display: flex; justify-content: center; padding: 16px; }
+    .frame {
+      width: 100%; max-width: 510px; min-height: calc(100dvh - 32px); display: flex; flex-direction: column;
+      border-radius: var(--radius-frame); overflow: hidden; position: relative;
+      background: linear-gradient(180deg, var(--card), rgba(255,255,255,0.24));
+      border: 1px solid var(--card-line);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(22px) saturate(1.08); -webkit-backdrop-filter: blur(22px) saturate(1.08);
+    }
+    body.night .frame {
+      background: linear-gradient(180deg, rgba(17, 21, 20, 0.82), rgba(10, 12, 11, 0.78));
+      border-color: rgba(231,221,207,0.08);
+      box-shadow: 0 42px 120px rgba(0,0,0,.54), inset 0 1px 0 rgba(255,255,255,.05), inset 0 -1px 0 rgba(255,255,255,.015);
+    }
+    header { padding: 22px 20px 10px; text-align: center; }
+    h1 { font-size: 21px; font-weight: 600; letter-spacing: -.02em; }
+    .sub { margin-top: 6px; font-size: 13px; line-height: 1.4; color: var(--text-soft); }
+    body.night .sub { color: var(--night-soft); }
+    .content { flex: 1; position: relative; overflow: hidden; }
+    .view { position: absolute; inset: 0; display: none; flex-direction: column; gap: 14px; padding: 18px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    .view.active { display: flex; }
+    .card, .garden, .actions, .helpBox, textarea, .nav {
+      background: linear-gradient(180deg, rgba(255,255,255,0.44), rgba(255,255,255,0.26));
+      border: 1px solid rgba(255,255,255,0.50);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.72), 0 10px 24px rgba(0,0,0,0.04);
+    }
+    body.night .card, body.night .garden, body.night .actions, body.night .helpBox, body.night textarea, body.night .nav {
+      background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.026));
+      border-color: rgba(231,221,207,0.08);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.24), inset 0 1px 0 rgba(255,255,255,0.055), inset 0 -1px 0 rgba(255,255,255,0.015);
+    }
+    .card { border-radius: var(--radius-panel); padding: 18px; }
+    .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+    .label { font-size: 12px; font-weight: 700; letter-spacing: .04em; color: var(--text-soft); }
+    .state { font-size: 28px; line-height: 1.05; font-weight: 600; letter-spacing: -.03em; text-align: right; }
+    .desc { font-size: 13px; line-height: 1.45; color: rgba(43, 36, 30, 0.76); }
+    body.night .label, body.night .desc { color: var(--night-soft); }
+    .barWrap { position: relative; margin: 16px 0 12px; }
+    .barBg { position: absolute; inset: 50% 0 auto 0; transform: translateY(-50%); height: 12px; border-radius: 999px; background: rgba(0,0,0,0.05); overflow: hidden; }
+    body.night .barBg { background: rgba(255,255,255,0.08); }
+    .barFill { height: 100%; width: 50%; border-radius: inherit; background: linear-gradient(90deg, #d1b895 0%, #b2a680 45%, #8a9a72 100%); transition: width 0.25s var(--ease); }
+    body.night .barFill { background: linear-gradient(90deg, #b89d74 0%, #8e7c61 45%, #4d5648 100%); }
+    input[type="range"] { position: relative; z-index: 2; width: 100%; height: 34px; background: transparent; appearance: none; outline: none; }
+    input[type="range"]::-webkit-slider-thumb { appearance: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; }
+    body.day input[type="range"]::-webkit-slider-thumb { background: linear-gradient(180deg, #ffffff, #f2ebe2); border: 2px solid var(--accent); }
+    body.night input[type="range"]::-webkit-slider-thumb { background: linear-gradient(180deg, #fbf6ef, #e4d8c6); border: 2px solid var(--night-accent); }
+    .scaleLabels { display: flex; justify-content: space-between; gap: 6px; margin-top: 8px; font-size: 10px; color: var(--text-faint); line-height: 1.2; }
+    body.night .scaleLabels { color: var(--night-faint); }
+    .scaleLabels span { flex: 1; text-align: center; }
+    textarea { width: 100%; height: 120px; border-radius: var(--radius-panel); padding: 16px; resize: none; font: inherit; font-size: 15px; line-height: 1.45; color: var(--text-main); outline: none; }
+    body.night textarea { color: var(--night-text); }
+    textarea::placeholder { color: rgba(58,44,31,.42); }
+    body.night textarea::placeholder { color: rgba(235,241,236,.34); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .btn {
+      appearance: none; width: 100%; min-height: 52px; border-radius: var(--radius-btn); border: 1px solid rgba(255,255,255,0.66);
+      background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(245,239,231,0.92)); color: var(--text-main); font-size: 15px; font-weight: 700; cursor: pointer;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.95);
+    }
+    body.night .btn {
+      background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.036)); color: var(--night-text);
+      border-color: rgba(231,221,207,0.09); box-shadow: 0 12px 28px rgba(0,0,0,0.20), inset 0 1px 0 rgba(255,255,255,0.065);
+    }
+    .garden { flex: 1; min-height: 320px; border-radius: var(--radius-panel); position: relative; overflow: hidden; background: radial-gradient(circle at 50% 18%, rgba(255,255,255,0.20), transparent 28%), linear-gradient(180deg, rgba(255,255,255,0.30), rgba(255,255,255,0.18)); }
+    body.night .garden { background: linear-gradient(180deg, rgba(16,18,17,.78) 0%, rgba(11,13,12,.92) 26%, rgba(10,12,11,.98) 100%); }
+    .empty { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; color: rgba(43,36,30,0.30); padding: 28px; line-height: 1.45; font-size: 16px; z-index: 1; }
+    body.night .empty { color: rgba(235,241,236,.30); }
+    .creature {
+      position: absolute; width: 84px; min-height: 84px; padding: 8px; border-radius: 28px; border: 1px solid rgba(255,255,255,.78); cursor: pointer;
+      display: flex; align-items: center; justify-content: center; text-align: center; font-size: 11px; line-height: 1.15; font-weight: 600; color: rgba(34, 28, 22, 0.92);
+      box-shadow: 0 18px 34px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.62); transition: left 1.2s var(--ease), top 1.2s var(--ease), opacity 1.6s var(--ease), filter 1.6s var(--ease); overflow: hidden;
+      backdrop-filter: blur(14px) saturate(1.08); -webkit-backdrop-filter: blur(14px) saturate(1.08);
+    }
+    body.night .creature { color: rgba(244,249,246,.94); border-color: rgba(255,255,255,.16); box-shadow: 0 26px 48px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.08); }
+    .creature span { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; padding: 0 2px; }
+    .actions { border-radius: 20px; padding: 10px; display: none; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .actions.show { display: grid; }
+    .actions .btn { min-height: 46px; font-size: 12px; padding: 10px; }
+    .helpBox { flex: 1; min-height: 320px; border-radius: var(--radius-panel); overflow: hidden; position: relative; }
+    #calmCanvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+    .nav { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px; background: rgba(255,255,255,.38); border-top: 1px solid rgba(255,255,255,.32); }
+    body.night .nav { background: rgba(255,255,255,.03); }
+    .tab { border: none; background: none; padding: 11px 10px; border-radius: 14px; font-size: 12px; font-weight: 600; color: rgba(38,35,31,.48); cursor: pointer; }
+    body.night .tab { color: rgba(224,232,226,.48); }
+    .tab.active { background: rgba(255,255,255,.72); color: #9a7746; }
+    body.night .tab.active { background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.045)); color: #dcc39a; }
+    .overlay {
+      position: fixed; inset: 0; z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px;
+      background: rgba(10, 12, 11, 0.66); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    }
+    .modal {
+      width: 100%; max-width: 420px; border-radius: 30px; padding: 20px;
+      background: linear-gradient(180deg, rgba(255,255,255,.94), rgba(247,241,233,.90));
+      border: 1px solid rgba(255,255,255,.65); box-shadow: 0 24px 70px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.95); color: var(--text-main);
+    }
+    body.night .modal { background: linear-gradient(180deg, rgba(18,24,29,.97), rgba(11,15,19,.95)); border-color: rgba(231,221,207,.08); color: var(--night-text); box-shadow: 0 34px 94px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.04); }
+    .modal h2 { font-size: 22px; font-weight: 600; letter-spacing: -.02em; margin-bottom: 12px; text-align: center; }
+    .modal p { font-size: 15px; line-height: 1.55; text-align: center; color: rgba(43,36,30,.84); }
+    body.night .modal p { color: var(--night-soft); }
+    .modalRow { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 18px; }
+    @media (max-width: 390px) { .shell { padding: 12px; } .frame { min-height: calc(100dvh - 24px); } .view { padding: 16px; } .row, .actions { grid-template-columns: 1fr; } }
+  </style>
 </head>
-<body>
-<div class="sky"></div>
-<main class="shell">
-<section class="frame">
-<header><h1 id="modeTitle">Дневной свет</h1><div class="sub">Отметьте состояние и уберите лишнее из фокуса.</div></header>
-<div class="content">
-  <div class="view active" id="view-today">
-    <div class="card">
-      <div class="top"><span class="label">Состояние</span><span class="state" id="stateText">Спокойно</span></div>
-      <div class="barWrap"><div class="barBg"><div class="barFill" id="barFill"></div></div><input id="slider" type="range" min="0" max="4" step="1" value="2"></div>
-      <div class="scaleLabels"><span>Тяжело</span><span>Ниже обычного</span><span>Спокойно</span><span>Собранно</span><span>Сильно</span></div>
-      <p class="desc" id="stateDesc"></p>
+<body class="day">
+  <div class="sky"></div>
+  <canvas class="fractals" id="bgCanvas"></canvas>
+  <main class="shell">
+    <section class="frame">
+      <header>
+        <h1 id="modeTitle">Дневной свет</h1>
+        <div class="sub">Отметьте состояние и уберите лишнее из фокуса.</div>
+      </header>
+      <div class="content">
+        <div class="view active" id="view-today">
+          <div class="card">
+            <div class="top"><span class="label">Состояние</span><span id="stateText" class="state">Спокойно</span></div>
+            <div class="barWrap"><div class="barBg"><div class="barFill" id="barFill"></div></div><input type="range" id="slider" min="0" max="4" step="1" value="2"></div>
+            <div class="scaleLabels"><span>Тяжело</span><span>Ниже обычного</span><span>Спокойно</span><span>Собранно</span><span>Сильно</span></div>
+            <p id="stateDesc" class="desc"></p>
+          </div>
+          <textarea id="thoughtInput" placeholder="Что сейчас мешает?"></textarea>
+          <div class="row"><button class="btn" id="addBtn" type="button">Выгрузить из головы</button><button class="btn" id="themeBtn" type="button">Тема: авто</button></div>
+        </div>
+        <div class="view" id="view-garden">
+          <div class="garden" id="garden"><div class="empty" id="emptyGarden">Сад пуст.<br>Добавьте первую мысль.</div></div>
+          <div class="actions" id="actions"><button class="btn" id="compressBtn" type="button">Сжать</button><button class="btn" id="sendBtn" type="button">Вдаль</button><button class="btn" id="dissolveBtn" type="button">Растворить</button></div>
+        </div>
+        <div class="view" id="view-help">
+          <button class="btn" id="waveBtn" type="button">Мягкая волна</button>
+          <div class="helpBox"><canvas id="calmCanvas"></canvas></div>
+        </div>
+      </div>
+      <nav class="nav"><button class="tab active" data-view="today" type="button">Сегодня</button><button class="tab" data-view="garden" type="button">Сад</button><button class="tab" data-view="help" type="button">Помощь</button></nav>
+    </section>
+  </main>
+  <div class="overlay" id="waveOverlay">
+    <div class="modal">
+      <h2 id="waveTitle">Мягкая волна</h2>
+      <p id="waveText">Просто смотрите и идите по шагам.</p>
+      <div class="modalRow"><button class="btn" id="waveMain" type="button">Начать</button><button class="btn" id="waveClose" type="button">Закрыть</button></div>
     </div>
-    <textarea id="thoughtInput" placeholder="Что сейчас мешает?"></textarea>
-    <div class="row"><button class="btn" id="addBtn">Выгрузить из головы</button><button class="btn" id="themeBtn">Тема: авто</button></div>
   </div>
-  <div class="view" id="view-garden">
-    <div class="garden" id="garden"><div class="empty" id="emptyGarden">Сад пуст.<br>Добавьте первую мысль.</div></div>
-    <div class="actions" id="actions"><button class="btn" id="compressBtn">Сжать</button><button class="btn" id="sendBtn">Вдаль</button><button class="btn" id="dissolveBtn">Растворить</button></div>
-  </div>
-  <div class="view" id="view-help">
-    <button class="btn" id="waveBtn">Мягкая волна</button>
-    <div class="helpBox"><canvas id="calm"></canvas></div>
-  </div>
-</div>
-<nav class="nav"><button class="tab active" data-view="today">Сегодня</button><button class="tab" data-view="garden">Сад</button><button class="tab" data-view="help">Помощь</button></nav>
-</section>
-</main>
-<script>
-const body=document.body,tabs=[...document.querySelectorAll('.tab')],views=[...document.querySelectorAll('.view')],themeBtn=document.getElementById('themeBtn'),modeTitle=document.getElementById('modeTitle'),slider=document.getElementById('slider'),stateText=document.getElementById('stateText'),stateDesc=document.getElementById('stateDesc'),barFill=document.getElementById('barFill'),thoughtInput=document.getElementById('thoughtInput'),addBtn=document.getElementById('addBtn'),garden=document.getElementById('garden'),emptyGarden=document.getElementById('emptyGarden'),actions=document.getElementById('actions'),compressBtn=document.getElementById('compressBtn'),sendBtn=document.getElementById('sendBtn'),dissolveBtn=document.getElementById('dissolveBtn'),waveBtn=document.getElementById('waveBtn'),calm=document.getElementById('calm'),ctx=calm.getContext('2d');
-let theme='auto',selectedId=null,selectedEl=null,calmTime=0;
-const states=[["Тяжело","Лучше снизить нагрузку и убрать лишнее."],["Ниже обычного","Оставьте только самое нужное."],["Спокойно","Можно двигаться без спешки."],["Собранно","Хорошее состояние для важных дел."],["Сильно","Есть запас внимания и сил."]];
-let items=JSON.parse(localStorage.getItem('garden_items')||'[]');
-function save(){localStorage.setItem('garden_items',JSON.stringify(items))}
-function setView(name){views.forEach(v=>v.classList.toggle('active',v.id===`view-${name}`));tabs.forEach(t=>t.classList.toggle('active',t.dataset.view===name));if(name!=='garden')clearSelection();resizeCalm()} tabs.forEach(t=>t.onclick=()=>setView(t.dataset.view));
-function updateState(){const v=+slider.value;stateText.textContent=states[v][0];stateDesc.textContent=states[v][1];barFill.style.width=(v/4)*100+'%'} slider.oninput=updateState; updateState();
-function applyTheme(){const h=new Date().getHours(),night=theme==='night'||(theme==='auto'&&(h<7||h>20)); body.className=night?'night':'day'; modeTitle.textContent=night?'Ночной покой':'Дневной свет'; themeBtn.textContent='Тема: '+(theme==='auto'?'авто':theme==='light'?'свет':'ночь'); renderGarden(); resizeCalm()}
-themeBtn.onclick=()=>{theme=theme==='auto'?'light':theme==='light'?'night':'auto'; applyTheme()};
-function hue(){return [18,32,42,58,86,142,168,286,326][Math.floor(Math.random()*9)]}
-addBtn.onclick=()=>{const txt=thoughtInput.value.trim(); if(!txt)return; const h=hue(); items.push({id:Date.now()+Math.random(),text:txt,x:Math.random()*66+8,y:Math.random()*62+12,c1:`hsla(${h},58%,74%,.52)`,c2:`hsla(${h},28%,40%,.30)`}); thoughtInput.value=''; save(); renderGarden(); setView('garden')}
-function clearSelection(){selectedId=null; if(selectedEl) selectedEl.style.transform=''; selectedEl=null; actions.classList.remove('show')}
-function selectItem(id,el){selectedId=id; selectedEl=el; el.style.transform='scale(1.08)'; actions.classList.add('show')}
-function renderGarden(){clearSelection(); garden.querySelectorAll('.creature').forEach(x=>x.remove()); if(!items.length){emptyGarden.style.display='grid'; return} emptyGarden.style.display='none'; items.forEach(it=>{const el=document.createElement('button'); el.className='creature'; el.style.left=it.x+'%'; el.style.top=it.y+'%'; el.style.background=body.classList.contains('night')?it.c2:it.c1; el.innerHTML=`<span>${it.text}</span>`; el.onclick=e=>{e.stopPropagation(); selectItem(it.id,el)}; garden.appendChild(el)})}
-garden.onclick=e=>{if(e.target===garden) clearSelection()};
-function removeSel(type){if(!selectedId||!selectedEl)return; const id=selectedId,el=selectedEl; if(type==='send'){el.style.left='108%'; el.style.top='8%'; el.style.opacity='0'; el.style.filter='blur(6px)'} else {el.style.transform='scale(.15)'; el.style.opacity='0'; el.style.filter='blur(12px)'} clearSelection(); setTimeout(()=>{items=items.filter(x=>x.id!==id); save(); renderGarden()},1200)}
-compressBtn.onclick=()=>removeSel('compress'); sendBtn.onclick=()=>removeSel('send'); dissolveBtn.onclick=()=>removeSel('dissolve');
-waveBtn.onclick=()=>setView('help');
-function resizeCalm(){const dpr=window.devicePixelRatio||1, r=calm.getBoundingClientRect(); calm.width=Math.max(1,r.width*dpr); calm.height=Math.max(1,r.height*dpr); ctx.setTransform(dpr,0,0,dpr,0,0)}
-function drawCalm(){
-  const w=calm.clientWidth,h=calm.clientHeight; ctx.clearRect(0,0,w,h); const night=body.classList.contains('night'),cx=w/2,cy=h/2;
-  const glow=ctx.createRadialGradient(cx,cy,10,cx,cy,Math.min(w,h)*.36);
-  glow.addColorStop(0, night?'rgba(231,221,207,.20)':'rgba(255,255,255,.36)');
-  glow.addColorStop(.5, night?'rgba(184,157,116,.08)':'rgba(216,192,154,.10)');
-  glow.addColorStop(1,'rgba(255,255,255,0)');
-  ctx.fillStyle=glow; ctx.fillRect(0,0,w,h);
-  for(let i=0;i<3;i++){const p=((calmTime*.0001+i*.3)%1), r=30+p*120, a=(1-p)*(night?.10:.14); ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.strokeStyle=night?`rgba(231,221,207,${a})`:`rgba(156,119,70,${a})`; ctx.lineWidth=1.2; ctx.stroke()}
-  ctx.beginPath(); ctx.arc(cx,cy,Math.min(w,h)*(.11+.014*Math.sin(calmTime*.001)),0,Math.PI*2);
-  const pearl=ctx.createRadialGradient(cx-8,cy-8,4,cx,cy,Math.min(w,h)*.12);
-  pearl.addColorStop(0, night?'rgba(255,248,236,.55)':'rgba(255,255,255,.92)');
-  pearl.addColorStop(.4, night?'rgba(231,221,207,.20)':'rgba(247,239,229,.54)');
-  pearl.addColorStop(1,'rgba(255,255,255,0)');
-  ctx.fillStyle=pearl; ctx.fill();
-  calmTime+=16; requestAnimationFrame(drawCalm)
-}
-window.addEventListener('resize',resizeCalm);
-applyTheme(); renderGarden(); resizeCalm(); requestAnimationFrame(drawCalm);
-</script>
+  <script>
+    const body=document.body,tabs=document.querySelectorAll('.tab'),views=document.querySelectorAll('.view'),themeBtn=document.getElementById('themeBtn'),modeTitle=document.getElementById('modeTitle'),slider=document.getElementById('slider'),stateText=document.getElementById('stateText'),stateDesc=document.getElementById('stateDesc'),barFill=document.getElementById('barFill'),thoughtInput=document.getElementById('thoughtInput'),addBtn=document.getElementById('addBtn'),garden=document.getElementById('garden'),emptyGarden=document.getElementById('emptyGarden'),actions=document.getElementById('actions'),compressBtn=document.getElementById('compressBtn'),sendBtn=document.getElementById('sendBtn'),dissolveBtn=document.getElementById('dissolveBtn'),waveBtn=document.getElementById('waveBtn'),waveOverlay=document.getElementById('waveOverlay'),waveTitle=document.getElementById('waveTitle'),waveText=document.getElementById('waveText'),waveMain=document.getElementById('waveMain'),waveClose=document.getElementById('waveClose'),bgCanvas=document.getElementById('bgCanvas'),bgCtx=bgCanvas.getContext('2d'),calmCanvas=document.getElementById('calmCanvas'),calmCtx=calmCanvas.getContext('2d');
+    let theme='auto',selectedId=null,selectedEl=null,waveRunning=false,waveStep=0,calmTime=0;
+    const states=[["Тяжело","Лучше снизить нагрузку и убрать лишнее."],["Ниже обычного","Оставьте только самое нужное."],["Спокойно","Можно двигаться без спешки."],["Собранно","Хорошее состояние для важных дел."],["Сильно","Есть запас внимания и сил."]];
+    const waveSteps=[{title:"Мягкая волна",text:"Просто смотрите и идите по шагам."},{title:"Посмотрите вокруг",text:"Найдите взглядом три спокойных предмета."},{title:"Почувствуйте опору",text:"Заметьте стопы, спину и поверхность под ладонью."},{title:"Сделайте выдох",text:"Медленно выдыхайте дольше, чем вдыхаете."}];
+    let items=JSON.parse(localStorage.getItem('garden_items')||'[]');
+    function save(){localStorage.setItem('garden_items',JSON.stringify(items))}
+    function setView(name){views.forEach(v=>v.classList.remove('active')); tabs.forEach(t=>t.classList.remove('active')); document.getElementById('view-'+name).classList.add('active'); document.querySelector(`.tab[data-view="${name}"]`).classList.add('active'); if(name!=='garden') clearSelection(); resizeCanvas(calmCanvas,calmCtx)}
+    tabs.forEach(t=>t.addEventListener('click',()=>setView(t.dataset.view)));
+    function updateState(){const v=+slider.value; stateText.textContent=states[v][0]; stateDesc.textContent=states[v][1]; barFill.style.width=(v/4)*100+'%'} slider.addEventListener('input',updateState); updateState();
+    function applyTheme(){const h=new Date().getHours(); const isNight=theme==='night'||(theme==='auto'&&(h<7||h>20)); body.className=isNight?'night':'day'; modeTitle.textContent=isNight?'Ночной покой':'Дневной свет'; themeBtn.textContent='Тема: '+(theme==='auto'?'авто':theme==='light'?'свет':'ночь'); renderGarden(); resizeCanvas(bgCanvas,bgCtx); resizeCanvas(calmCanvas,calmCtx)}
+    themeBtn.addEventListener('click',()=>{theme=theme==='auto'?'light':theme==='light'?'night':'auto'; applyTheme()});
+    function randHue(){return [18,32,42,58,86,142,168,286,326][Math.floor(Math.random()*9)]}
+    addBtn.addEventListener('click',()=>{const txt=thoughtInput.value.trim(); if(!txt) return; const h=randHue(); items.push({id:Date.now()+Math.floor(Math.random()*1000),text:txt,x:Math.random()*66+8,y:Math.random()*62+12,colorLight:`hsla(${h},58%,74%,0.52)`,colorNight:`hsla(${h},28%,40%,0.30)`}); thoughtInput.value=''; save(); renderGarden(); setView('garden')});
+    function clearSelection(){selectedId=null; if(selectedEl) selectedEl.style.transform=''; selectedEl=null; actions.classList.remove('show')}
+    function selectItem(id,el){if(selectedEl) selectedEl.style.transform=''; selectedId=id; selectedEl=el; selectedEl.style.transform='scale(1.08)'; actions.classList.add('show')}
+    function renderGarden(){clearSelection(); garden.querySelectorAll('.creature').forEach(el=>el.remove()); if(!items.length){emptyGarden.style.display='grid'; return} emptyGarden.style.display='none'; items.forEach(c=>{const el=document.createElement('button'); el.type='button'; el.className='creature'; el.style.left=c.x+'%'; el.style.top=c.y+'%'; el.style.background=body.classList.contains('night')?c.colorNight:c.colorLight; el.innerHTML=`<span>${c.text}</span>`; el.addEventListener('click',e=>{e.stopPropagation(); selectItem(c.id,el)}); garden.appendChild(el)})}
+    garden.addEventListener('click',e=>{if(e.target===garden) clearSelection()});
+    function removeSelected(type){if(!selectedId||!selectedEl) return; const id=selectedId,el=selectedEl; if(type==='send'){el.style.left='108%'; el.style.top='8%'; el.style.opacity='0'; el.style.filter='blur(6px)'} else {el.style.transform='scale(.15)'; el.style.opacity='0'; el.style.filter='blur(12px)'} clearSelection(); setTimeout(()=>{items=items.filter(x=>x.id!==id); save(); renderGarden()},1200)}
+    compressBtn.addEventListener('click',()=>removeSelected('compress')); sendBtn.addEventListener('click',()=>removeSelected('send')); dissolveBtn.addEventListener('click',()=>removeSelected('dissolve'));
+    function openWave(){waveRunning=false; waveStep=0; updateWaveUI(); waveOverlay.style.display='flex'}
+    function closeWave(){waveOverlay.style.display='none'; waveRunning=false; waveStep=0; updateWaveUI()}
+    function updateWaveUI(){waveTitle.textContent=waveSteps[waveStep].title; waveText.textContent=waveSteps[waveStep].text; waveMain.textContent=!waveRunning?'Начать':waveStep<waveSteps.length-1?'Дальше':'Завершить'}
+    function nextWave(){if(!waveRunning){waveRunning=true; waveStep=1; updateWaveUI(); return} if(waveStep<waveSteps.length-1){waveStep+=1; updateWaveUI()} else closeWave()}
+    waveBtn.addEventListener('click',openWave); waveMain.addEventListener('click',nextWave); waveClose.addEventListener('click',closeWave); waveOverlay.addEventListener('click',e=>{if(e.target===waveOverlay) closeWave()});
+    function resizeCanvas(canvas,ctx){const dpr=window.devicePixelRatio||1, rect=canvas.getBoundingClientRect(); canvas.width=Math.max(1,rect.width*dpr); canvas.height=Math.max(1,rect.height*dpr); ctx.setTransform(1,0,0,1,0,0); ctx.scale(dpr,dpr)}
+    function drawBranch(x,y,len,angle,depth){if(depth===0) return; const x2=x+Math.cos(angle)*len, y2=y+Math.sin(angle)*len; bgCtx.beginPath(); bgCtx.moveTo(x,y); bgCtx.lineTo(x2,y2); bgCtx.strokeStyle=body.classList.contains('night')?'rgba(231,221,207,0.05)':'rgba(169,133,83,0.08)'; bgCtx.lineWidth=Math.max(.6,depth*.68); bgCtx.stroke(); drawBranch(x2,y2,len*.74,angle-.42,depth-1); drawBranch(x2,y2,len*.74,angle+.42,depth-1)}
+    function drawBackground(){const w=bgCanvas.clientWidth,h=bgCanvas.clientHeight; bgCtx.clearRect(0,0,w,h); drawBranch(w/2,h+8,h/6.6,-Math.PI/2,8); requestAnimationFrame(drawBackground)}
+    function drawCalm(){const w=calmCanvas.clientWidth,h=calmCanvas.clientHeight,night=body.classList.contains('night'),cx=w/2,cy=h/2; calmCtx.clearRect(0,0,w,h); const glow=calmCtx.createRadialGradient(cx,cy,20,cx,cy,Math.min(w,h)*.46); glow.addColorStop(0,night?'rgba(231,221,207,.08)':'rgba(255,255,255,.18)'); glow.addColorStop(.5,night?'rgba(184,157,116,.04)':'rgba(212,190,157,.08)'); glow.addColorStop(1,'rgba(255,255,255,0)'); calmCtx.fillStyle=glow; calmCtx.fillRect(0,0,w,h); for(let i=0;i<3;i++){const p=((calmTime*.00010+i*.30)%1),r=34+p*145,a=(1-p)*(night?.10:.13); calmCtx.beginPath(); calmCtx.arc(cx,cy,r,0,Math.PI*2); calmCtx.strokeStyle=night?`rgba(231,221,207,${a})`:`rgba(176,146,104,${a})`; calmCtx.lineWidth=1.25-p*.4; calmCtx.stroke()} const radius=Math.min(w,h)*(.11+(0.018*(0.5+0.5*Math.sin(calmTime*.00105)))); const pearl=calmCtx.createRadialGradient(cx-radius*.25,cy-radius*.25,radius*.08,cx,cy,radius); pearl.addColorStop(0,night?'rgba(252,248,241,.50)':'rgba(255,255,255,.96)'); pearl.addColorStop(.4,night?'rgba(231,221,207,.22)':'rgba(247,239,229,.64)'); pearl.addColorStop(1,night?'rgba(184,157,116,.08)':'rgba(221,204,178,.14)'); calmCtx.beginPath(); calmCtx.arc(cx,cy,radius,0,Math.PI*2); calmCtx.fillStyle=pearl; calmCtx.fill(); calmTime+=16; requestAnimationFrame(drawCalm)}
+    window.addEventListener('resize',()=>{resizeCanvas(bgCanvas,bgCtx); resizeCanvas(calmCanvas,calmCtx)});
+    applyTheme(); renderGarden(); updateWaveUI(); resizeCanvas(bgCanvas,bgCtx); resizeCanvas(calmCanvas,calmCtx); requestAnimationFrame(drawBackground); requestAnimationFrame(drawCalm);
+  </script>
 </body>
 </html>
