@@ -104,7 +104,7 @@
     input[type="range"] { position: relative; z-index: 2; width: 100%; height: 34px; background: transparent; appearance: none; outline: none; }
     input[type="range"]::-webkit-slider-thumb { appearance: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; }
     body.day input[type="range"]::-webkit-slider-thumb { background: linear-gradient(180deg, #ffffff, #f2ebe2); border: 2px solid var(--accent); }
-    body.night input[type="range"]::-webkit-slider-thumb { background: linear-gradient(180deg, #fbf6ef, #e4d8c6); border: 2px solid var(--night-accent); }
+    body.night input[type="range"]::-webkit-slider-thumb { background: linear-gradient(180deg, #fbf6ef, #e4d8c6); border: 2px solid #b89d74; }
     .scaleLabels { display: flex; justify-content: space-between; gap: 6px; margin-top: 8px; font-size: 10px; color: var(--text-faint); line-height: 1.2; }
     body.night .scaleLabels { color: var(--night-faint); }
     .scaleLabels span { flex: 1; text-align: center; }
@@ -145,15 +145,8 @@
     body.night .tab { color: rgba(224,232,226,.48); }
     .tab.active { background: rgba(255,255,255,.72); color: #9a7746; }
     body.night .tab.active { background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.045)); color: #dcc39a; }
-    .overlay {
-      position: fixed; inset: 0; z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px;
-      background: rgba(10, 12, 11, 0.66); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-    }
-    .modal {
-      width: 100%; max-width: 420px; border-radius: 30px; padding: 20px;
-      background: linear-gradient(180deg, rgba(255,255,255,.94), rgba(247,241,233,.90));
-      border: 1px solid rgba(255,255,255,.65); box-shadow: 0 24px 70px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.95); color: var(--text-main);
-    }
+    .overlay { position: fixed; inset: 0; z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; background: rgba(10, 12, 11, 0.66); backdrop-filter: blur(14px); }
+    .modal { width: 100%; max-width: 420px; border-radius: 30px; padding: 20px; background: linear-gradient(180deg, rgba(255,255,255,.94), rgba(247,241,233,.90)); border: 1px solid rgba(255,255,255,.65); box-shadow: 0 24px 70px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.95); color: var(--text-main); }
     body.night .modal { background: linear-gradient(180deg, rgba(18,24,29,.97), rgba(11,15,19,.95)); border-color: rgba(231,221,207,.08); color: var(--night-text); box-shadow: 0 34px 94px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.04); }
     .modal h2 { font-size: 22px; font-weight: 600; letter-spacing: -.02em; margin-bottom: 12px; text-align: center; }
     .modal p { font-size: 15px; line-height: 1.55; text-align: center; color: rgba(43,36,30,.84); }
@@ -187,7 +180,7 @@
           <div class="actions" id="actions"><button class="btn" id="compressBtn" type="button">Сжать</button><button class="btn" id="sendBtn" type="button">Вдаль</button><button class="btn" id="dissolveBtn" type="button">Растворить</button></div>
         </div>
         <div class="view" id="view-help">
-          <button class="btn" id="waveBtn" type="button">Мягкая волна</button>
+          <button class="btn" id="waveBtn" type="button">Снять напряжение</button>
           <div class="helpBox"><canvas id="calmCanvas"></canvas></div>
         </div>
       </div>
@@ -196,8 +189,8 @@
   </main>
   <div class="overlay" id="waveOverlay">
     <div class="modal">
-      <h2 id="waveTitle">Мягкая волна</h2>
-      <p id="waveText">Просто смотрите и идите по шагам.</p>
+      <h2 id="waveTitle">Снять напряжение</h2>
+      <p id="waveText">Сейчас будет короткий тихий сброс по шагам.</p>
       <div class="modalRow"><button class="btn" id="waveMain" type="button">Начать</button><button class="btn" id="waveClose" type="button">Закрыть</button></div>
     </div>
   </div>
@@ -205,7 +198,7 @@
     const body=document.body,tabs=document.querySelectorAll('.tab'),views=document.querySelectorAll('.view'),themeBtn=document.getElementById('themeBtn'),modeTitle=document.getElementById('modeTitle'),slider=document.getElementById('slider'),stateText=document.getElementById('stateText'),stateDesc=document.getElementById('stateDesc'),barFill=document.getElementById('barFill'),thoughtInput=document.getElementById('thoughtInput'),addBtn=document.getElementById('addBtn'),garden=document.getElementById('garden'),emptyGarden=document.getElementById('emptyGarden'),actions=document.getElementById('actions'),compressBtn=document.getElementById('compressBtn'),sendBtn=document.getElementById('sendBtn'),dissolveBtn=document.getElementById('dissolveBtn'),waveBtn=document.getElementById('waveBtn'),waveOverlay=document.getElementById('waveOverlay'),waveTitle=document.getElementById('waveTitle'),waveText=document.getElementById('waveText'),waveMain=document.getElementById('waveMain'),waveClose=document.getElementById('waveClose'),bgCanvas=document.getElementById('bgCanvas'),bgCtx=bgCanvas.getContext('2d'),calmCanvas=document.getElementById('calmCanvas'),calmCtx=calmCanvas.getContext('2d');
     let theme='auto',selectedId=null,selectedEl=null,waveRunning=false,waveStep=0,calmTime=0;
     const states=[["Тяжело","Лучше снизить нагрузку и убрать лишнее."],["Ниже обычного","Оставьте только самое нужное."],["Спокойно","Можно двигаться без спешки."],["Собранно","Хорошее состояние для важных дел."],["Сильно","Есть запас внимания и сил."]];
-    const waveSteps=[{title:"Мягкая волна",text:"Просто смотрите и идите по шагам."},{title:"Посмотрите вокруг",text:"Найдите взглядом три спокойных предмета."},{title:"Почувствуйте опору",text:"Заметьте стопы, спину и поверхность под ладонью."},{title:"Сделайте выдох",text:"Медленно выдыхайте дольше, чем вдыхаете."}];
+    const waveSteps=[{title:"Снять напряжение",text:"Сейчас будет короткий тихий сброс по шагам."},{title:"Посмотрите вокруг",text:"Найдите взглядом три спокойных предмета."},{title:"Почувствуйте опору",text:"Заметьте стопы, спину и поверхность под ладонью."},{title:"Сделайте выдох",text:"Медленно выдыхайте дольше, чем вдыхаете."}];
     let items=JSON.parse(localStorage.getItem('garden_items')||'[]');
     function save(){localStorage.setItem('garden_items',JSON.stringify(items))}
     function setView(name){views.forEach(v=>v.classList.remove('active')); tabs.forEach(t=>t.classList.remove('active')); document.getElementById('view-'+name).classList.add('active'); document.querySelector(`.tab[data-view="${name}"]`).classList.add('active'); if(name!=='garden') clearSelection(); resizeCanvas(calmCanvas,calmCtx)}
@@ -229,7 +222,8 @@
     function resizeCanvas(canvas,ctx){const dpr=window.devicePixelRatio||1, rect=canvas.getBoundingClientRect(); canvas.width=Math.max(1,rect.width*dpr); canvas.height=Math.max(1,rect.height*dpr); ctx.setTransform(1,0,0,1,0,0); ctx.scale(dpr,dpr)}
     function drawBranch(x,y,len,angle,depth){if(depth===0) return; const x2=x+Math.cos(angle)*len, y2=y+Math.sin(angle)*len; bgCtx.beginPath(); bgCtx.moveTo(x,y); bgCtx.lineTo(x2,y2); bgCtx.strokeStyle=body.classList.contains('night')?'rgba(231,221,207,0.05)':'rgba(169,133,83,0.08)'; bgCtx.lineWidth=Math.max(.6,depth*.68); bgCtx.stroke(); drawBranch(x2,y2,len*.74,angle-.42,depth-1); drawBranch(x2,y2,len*.74,angle+.42,depth-1)}
     function drawBackground(){const w=bgCanvas.clientWidth,h=bgCanvas.clientHeight; bgCtx.clearRect(0,0,w,h); drawBranch(w/2,h+8,h/6.6,-Math.PI/2,8); requestAnimationFrame(drawBackground)}
-    function drawCalm(){const w=calmCanvas.clientWidth,h=calmCanvas.clientHeight,night=body.classList.contains('night'),cx=w/2,cy=h/2; calmCtx.clearRect(0,0,w,h); const glow=calmCtx.createRadialGradient(cx,cy,20,cx,cy,Math.min(w,h)*.46); glow.addColorStop(0,night?'rgba(231,221,207,.08)':'rgba(255,255,255,.18)'); glow.addColorStop(.5,night?'rgba(184,157,116,.04)':'rgba(212,190,157,.08)'); glow.addColorStop(1,'rgba(255,255,255,0)'); calmCtx.fillStyle=glow; calmCtx.fillRect(0,0,w,h); for(let i=0;i<3;i++){const p=((calmTime*.00010+i*.30)%1),r=34+p*145,a=(1-p)*(night?.10:.13); calmCtx.beginPath(); calmCtx.arc(cx,cy,r,0,Math.PI*2); calmCtx.strokeStyle=night?`rgba(231,221,207,${a})`:`rgba(176,146,104,${a})`; calmCtx.lineWidth=1.25-p*.4; calmCtx.stroke()} const radius=Math.min(w,h)*(.11+(0.018*(0.5+0.5*Math.sin(calmTime*.00105)))); const pearl=calmCtx.createRadialGradient(cx-radius*.25,cy-radius*.25,radius*.08,cx,cy,radius); pearl.addColorStop(0,night?'rgba(252,248,241,.50)':'rgba(255,255,255,.96)'); pearl.addColorStop(.4,night?'rgba(231,221,207,.22)':'rgba(247,239,229,.64)'); pearl.addColorStop(1,night?'rgba(184,157,116,.08)':'rgba(221,204,178,.14)'); calmCtx.beginPath(); calmCtx.arc(cx,cy,radius,0,Math.PI*2); calmCtx.fillStyle=pearl; calmCtx.fill(); calmTime+=16; requestAnimationFrame(drawCalm)}
+    function drawPetal(cx,cy,radius,angle,time,night){calmCtx.save(); calmCtx.translate(cx,cy); calmCtx.rotate(angle+Math.sin(time*0.00045+angle)*0.08); const length=radius*1.06, width=radius*0.28; calmCtx.beginPath(); calmCtx.moveTo(0,0); calmCtx.bezierCurveTo(width,-width,length*0.75,-width*0.7,length,0); calmCtx.bezierCurveTo(length*0.75,width*0.7,width,width,0,0); const grad=calmCtx.createLinearGradient(0,0,length,0); grad.addColorStop(0, night?'rgba(248,242,232,0.18)':'rgba(255,255,255,0.34)'); grad.addColorStop(0.5, night?'rgba(231,221,207,0.10)':'rgba(231,214,186,0.18)'); grad.addColorStop(1,'rgba(255,255,255,0)'); calmCtx.fillStyle=grad; calmCtx.fill(); calmCtx.strokeStyle=night?'rgba(248,242,232,0.10)':'rgba(255,255,255,0.18)'; calmCtx.lineWidth=1.1; calmCtx.stroke(); calmCtx.restore()}
+    function drawCalm(){const w=calmCanvas.clientWidth,h=calmCanvas.clientHeight,night=body.classList.contains('night'),cx=w/2,cy=h/2; calmCtx.clearRect(0,0,w,h); const glow=calmCtx.createRadialGradient(cx,cy,20,cx,cy,Math.min(w,h)*0.46); glow.addColorStop(0,night?'rgba(231,221,207,0.08)':'rgba(255,255,255,0.18)'); glow.addColorStop(0.5,night?'rgba(184,157,116,0.05)':'rgba(212,190,157,0.08)'); glow.addColorStop(1,'rgba(255,255,255,0)'); calmCtx.fillStyle=glow; calmCtx.fillRect(0,0,w,h); for(let i=0;i<3;i++){const p=((calmTime*0.00010+i*0.30)%1),r=34+p*145,a=(1-p)*(night?0.10:0.13); calmCtx.beginPath(); calmCtx.arc(cx,cy,r,0,Math.PI*2); calmCtx.strokeStyle=night?`rgba(231,221,207,${a})`:`rgba(176,146,104,${a})`; calmCtx.lineWidth=1.25-p*0.4; calmCtx.stroke()} const petals=8, base=Math.min(w,h)*0.22; for(let i=0;i<petals;i++) drawPetal(cx,cy,base,(Math.PI*2/petals)*i,calmTime+i*180,night); const pearlRadius=Math.min(w,h)*(0.11+(0.018*(0.5+0.5*Math.sin(calmTime*0.00105)))); const pearl=calmCtx.createRadialGradient(cx-pearlRadius*0.25,cy-pearlRadius*0.25,pearlRadius*0.08,cx,cy,pearlRadius); pearl.addColorStop(0,night?'rgba(255,248,236,0.50)':'rgba(255,255,255,0.96)'); pearl.addColorStop(0.4,night?'rgba(231,221,207,0.22)':'rgba(247,239,229,0.64)'); pearl.addColorStop(1,night?'rgba(184,157,116,0.08)':'rgba(221,204,178,0.14)'); calmCtx.beginPath(); calmCtx.arc(cx,cy,pearlRadius,0,Math.PI*2); calmCtx.fillStyle=pearl; calmCtx.fill(); calmTime+=16; requestAnimationFrame(drawCalm)}
     window.addEventListener('resize',()=>{resizeCanvas(bgCanvas,bgCtx); resizeCanvas(calmCanvas,calmCtx)});
     applyTheme(); renderGarden(); updateWaveUI(); resizeCanvas(bgCanvas,bgCtx); resizeCanvas(calmCanvas,calmCtx); requestAnimationFrame(drawBackground); requestAnimationFrame(drawCalm);
   </script>
